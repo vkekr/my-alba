@@ -28,7 +28,7 @@
 </head>
 <body class="text-slate-800 h-screen w-screen flex justify-center items-center overflow-hidden">
 
-  <!-- 모바일 앱 컨테이너 (하단 세이프존 확보 및 유연한 패딩) -->
+  <!-- 모바일 앱 컨테이너 -->
   <div class="w-full max-w-md h-full bg-slate-50 shadow-2xl flex flex-col relative overflow-hidden pb-safe">
 
     <!-- 상단 헤더 -->
@@ -37,7 +37,7 @@
         <div>
           <div class="flex items-center space-x-2">
             <span class="text-lg font-extrabold tracking-tight">💸 마이알바 싱크</span>
-            <span class="text-[10px] bg-indigo-500/80 border border-indigo-400/50 px-2 py-0.5 rounded-full font-semibold">v1.0.13</span>
+            <span class="text-[10px] bg-indigo-500/80 border border-indigo-400/50 px-2 py-0.5 rounded-full font-semibold">v1.0.15</span>
           </div>
           <p class="text-[11px] text-indigo-100 mt-0.5">고정·일일알바 맞춤 계산 & 캘린더 연동</p>
         </div>
@@ -47,7 +47,7 @@
         </button>
       </div>
 
-      <!-- 상단 탭 네비게이션 (항상 완벽하게 노출되도록 패딩 및 크기 조정) -->
+      <!-- 상단 탭 네비게이션 -->
       <div class="grid grid-cols-4 gap-1 bg-indigo-800/40 p-1 rounded-xl mt-3 text-[11px] font-bold shrink-0">
         <button id="topTab-main" onclick="switchTab('main')" class="py-1.5 rounded-lg transition text-center bg-white text-indigo-700 shadow-sm">🏠 메인</button>
         <button id="topTab-register" onclick="switchTab('register')" class="py-1.5 rounded-lg transition text-center text-indigo-100 hover:text-white">✍️ 등록</button>
@@ -62,7 +62,7 @@
       <button onclick="clearSampleData()" class="ml-2 shrink-0 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold text-[10px] px-2 py-1 rounded-lg transition">지우기</button>
     </div>
 
-    <!-- 메인 컨텐츠 영역 (하단 잘림 방지를 위한 하단 패딩 확보) -->
+    <!-- 메인 컨텐츠 영역 -->
     <main class="flex-1 p-3 pb-16 flex flex-col justify-between overflow-hidden">
 
       <!-- ================= MAIN TAB ================= -->
@@ -112,10 +112,10 @@
         </div>
       </div>
 
-      <!-- ================= REGISTER TAB (하단 고정 버튼 & 스크롤) ================= -->
-      <div id="view-register" class="tab-pane hidden flex-1 flex flex-col overflow-hidden relative pb-14">
+      <!-- ================= REGISTER TAB ================= -->
+      <div id="view-register" class="tab-pane hidden flex-1 flex flex-col overflow-hidden relative pb-16">
         
-        <!-- STEP 1: 알바 형태 선택 및 프리셋 -->
+        <!-- STEP 1: 알바 형태 선택 -->
         <section id="regStep-1" class="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar space-y-3 pb-4">
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between mb-1">
@@ -153,7 +153,7 @@
         </section>
 
         <!-- STEP 2: 통합 정보 입력 (스크롤 가능) -->
-        <section id="regStep-2" class="hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-4">
+        <section id="regStep-2" class="hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-6">
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between sticky top-0 bg-white py-1 z-10 border-b border-slate-100">
               <span class="text-[10px] font-extrabold text-indigo-600 uppercase">근무 정보 및 일정 입력</span>
@@ -262,7 +262,7 @@
       </div>
 
       <!-- ================= SCHEDULE TAB ================= -->
-      <div id="view-schedule" class="tab-pane hidden flex-1 flex flex-col space-y-3 overflow-y-auto no-scrollbar pb-6">
+      <div id="view-schedule" class="tab-pane hidden flex-1 flex flex-col space-y-3 overflow-y-auto no-scrollbar pb-24">
         <section class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm shrink-0 space-y-2">
           <div class="flex items-center justify-between">
             <button onclick="changeMonth(-1)" class="px-2 py-1 bg-slate-100 rounded-lg text-xs font-bold">◀</button>
@@ -301,14 +301,15 @@
           <div id="workplaceBreakdownList" class="space-y-2"></div>
         </section>
 
-        <section class="space-y-2 pb-6">
+        <!-- 상세 스케줄 목록 (충분한 여백과 스크롤 보장) -->
+        <section class="space-y-2 pb-16">
           <h3 class="text-xs font-extrabold text-slate-800">📋 상세 스케줄 목록</h3>
-          <div id="scheduleDetailList" class="space-y-2"></div>
+          <div id="scheduleDetailList" class="space-y-2 min-h-[140px]"></div>
         </section>
       </div>
 
-      <!-- ================= SETTINGS TAB (스크롤 가능하게 수정) ================= -->
-      <div id="view-settings" class="tab-pane hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-8">
+      <!-- ================= SETTINGS TAB ================= -->
+      <div id="view-settings" class="tab-pane hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-24">
         <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 shrink-0">
           <h2 class="text-xs font-extrabold text-slate-800">⭐ 근무지 프리셋 관리</h2>
           <div class="bg-slate-50 p-3 rounded-xl space-y-2">
@@ -334,22 +335,22 @@
 
     </main>
 
-    <!-- iOS 스타일 드럼 스크롤 시간 선택 모달 -->
+    <!-- iOS 스타일 드럼 스크롤 시간 선택 모달 (여백 및 표시 오류 수정 완료) -->
     <div id="timePickerModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden items-end justify-center">
       <div class="bg-white w-full max-w-md rounded-t-3xl p-5 shadow-2xl space-y-4 tab-pane">
         <div class="flex justify-between items-center border-b pb-2">
           <h3 id="timePickerTitle" class="text-sm font-extrabold text-slate-900">시간 선택</h3>
           <button onclick="closeTimePickerModal()" class="text-xs font-bold text-slate-400 hover:text-slate-700">✕ 닫기</button>
         </div>
-        <div class="relative h-40 bg-slate-100 rounded-2xl overflow-hidden flex justify-center items-center">
-          <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-10 bg-indigo-50 border-y border-indigo-200 pointer-events-none"></div>
-          <div id="drumScrollContainer" class="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory py-14 space-y-2 text-center"></div>
+        <div class="relative h-48 bg-slate-100 rounded-2xl overflow-hidden flex justify-center items-center">
+          <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-10 bg-indigo-50 border-y border-indigo-200 pointer-events-none z-10"></div>
+          <div id="drumScrollContainer" class="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory py-20 space-y-3 text-center z-0"></div>
         </div>
         <button type="button" onclick="confirmTimePicker()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs shadow-sm">확인</button>
       </div>
     </div>
 
-    <!-- 토스트 알림 (1초로 단축) -->
+    <!-- 토스트 알림 (1초 단축 적용) -->
     <div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-2">
       <div id="toastBox" class="bg-slate-900/95 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
         <span id="toastIcon">✅</span>
@@ -374,10 +375,10 @@
   <script>
     const MIN_WAGE_2026 = 10320;
     const STORAGE_KEYS = {
-      SHIFTS: 'myAlbaSync_shifts_v13',
-      PRESETS: 'myAlbaSync_presets_v13',
-      SETTINGS: 'myAlbaSync_settings_v13',
-      INITIALIZED: 'myAlbaSync_init_v13'
+      SHIFTS: 'myAlbaSync_shifts_v15',
+      PRESETS: 'myAlbaSync_presets_v15',
+      SETTINGS: 'myAlbaSync_settings_v15',
+      INITIALIZED: 'myAlbaSync_init_v15'
     };
 
     let currentTab = 'main';
@@ -718,7 +719,7 @@
         const breaks = [0, 30, 60, 90, 120];
         breaks.forEach(b => {
           const label = b === 0 ? '없음 (0분)' : `${b}분`;
-          html += `<div class="snap-center py-2 text-sm font-bold text-slate-700 cursor-pointer" onclick="selectDrumBreak(${b})">${label}</div>`;
+          html += `<div class="snap-center py-2 text-sm font-bold text-slate-800 cursor-pointer" onclick="selectDrumBreak(${b})">${label}</div>`;
         });
       } else {
         const [h, m] = currentVal.split(':');
@@ -726,7 +727,7 @@
         tempSelectedMinute = m || '00';
         for (let i = 0; i < 24; i++) {
           const hh = String(i).padStart(2, '0');
-          html += `<div class="snap-center py-1.5 text-sm font-bold text-slate-700 cursor-pointer" onclick="selectDrumHour('${hh}')">${hh}:00</div>`;
+          html += `<div class="snap-center py-2 text-base font-extrabold text-slate-800 cursor-pointer hover:text-indigo-600 transition" onclick="selectDrumHour('${hh}')">${hh}:00</div>`;
         }
       }
       container.innerHTML = html;
@@ -744,14 +745,16 @@
 
     function selectDrumHour(hh) {
       tempSelectedHour = hh;
-    }
-
-    function confirmTimePicker() {
       if (activeTimePickerTarget === 'start') {
         document.getElementById('displayStartTime').textContent = `${tempSelectedHour}:${tempSelectedMinute}`;
       } else if (activeTimePickerTarget === 'end') {
         document.getElementById('displayEndTime').textContent = `${tempSelectedHour}:${tempSelectedMinute}`;
       }
+      closeTimePickerModal();
+      updateLivePreview();
+    }
+
+    function confirmTimePicker() {
       closeTimePickerModal();
       updateLivePreview();
     }
@@ -784,7 +787,7 @@
       selectedMonth = selectedDates[0].slice(0, 7);
       renderMainDashboard();
 
-      switchTab('main');
+      switchTab('schedule');
       showToast(`[${workplace}] ${selectedDates.length}일간 근무 등록 완료!`);
     }
 
@@ -932,18 +935,23 @@
         </div>
       `).join('') || '<div class="text-center text-xs text-slate-400 py-3">내역이 없습니다.</div>';
 
-      document.getElementById('scheduleDetailList').innerHTML = monthShifts.map(s => `
-        <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
-          <div>
-            <span class="font-bold text-slate-800">${s.date} (${escapeHtml(s.workplace)})</span>
-            <div class="text-[10px] text-slate-500">${s.start}~${s.end} (${s.hours}h)</div>
+      const detailEl = document.getElementById('scheduleDetailList');
+      if (monthShifts.length === 0) {
+        detailEl.innerHTML = `<div class="bg-white p-6 rounded-xl border border-slate-200 text-center text-xs text-slate-400">이번 달 등록된 상세 스케줄이 없습니다.</div>`;
+      } else {
+        detailEl.innerHTML = monthShifts.map(s => `
+          <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
+            <div>
+              <span class="font-bold text-slate-800">${s.date} (${escapeHtml(s.workplace)})</span>
+              <div class="text-[10px] text-slate-500">${s.start}~${s.end} (${s.hours}h)</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold">${s.basePay.toLocaleString()}원</span>
+              <button onclick="deleteShiftItem(${s.id})" class="text-[10px] text-rose-500 bg-rose-50 px-2 py-1 rounded">삭제</button>
+            </div>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-extrabold">${s.basePay.toLocaleString()}원</span>
-            <button onclick="deleteShiftItem(${s.id})" class="text-[10px] text-rose-500 bg-rose-50 px-2 py-1 rounded">삭제</button>
-          </div>
-        </div>
-      `).join('') || '';
+        `).join('');
+      }
     }
 
     function deleteShiftItem(id) {
@@ -1008,7 +1016,6 @@
       showToast('캘린더 파일 다운로드 완료!');
     }
 
-    // 토스트 알림 지속 시간을 정확히 1초(1000ms)로 단축
     function showToast(msg, type = 'success') {
       const box = document.getElementById('toastContainer');
       document.getElementById('toastMessage').textContent = msg;
