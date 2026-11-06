@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="마이알바 싱크">
@@ -28,8 +28,8 @@
 </head>
 <body class="text-slate-800 h-screen w-screen flex justify-center items-center overflow-hidden">
 
-  <!-- 모바일 앱 컨테이너 -->
-  <div class="w-full max-w-md h-full bg-slate-50 shadow-2xl flex flex-col relative overflow-hidden">
+  <!-- 모바일 앱 컨테이너 (하단 세이프존 확보 및 유연한 패딩) -->
+  <div class="w-full max-w-md h-full bg-slate-50 shadow-2xl flex flex-col relative overflow-hidden pb-safe">
 
     <!-- 상단 헤더 -->
     <header class="bg-indigo-600 text-white px-5 pt-4 pb-3 rounded-b-3xl shadow-md shrink-0 z-20">
@@ -37,7 +37,7 @@
         <div>
           <div class="flex items-center space-x-2">
             <span class="text-lg font-extrabold tracking-tight">💸 마이알바 싱크</span>
-            <span class="text-[10px] bg-indigo-500/80 border border-indigo-400/50 px-2 py-0.5 rounded-full font-semibold">v1.0.12</span>
+            <span class="text-[10px] bg-indigo-500/80 border border-indigo-400/50 px-2 py-0.5 rounded-full font-semibold">v1.0.13</span>
           </div>
           <p class="text-[11px] text-indigo-100 mt-0.5">고정·일일알바 맞춤 계산 & 캘린더 연동</p>
         </div>
@@ -47,7 +47,8 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-4 gap-1 bg-indigo-800/40 p-1 rounded-xl mt-3 text-[11px] font-bold">
+      <!-- 상단 탭 네비게이션 (항상 완벽하게 노출되도록 패딩 및 크기 조정) -->
+      <div class="grid grid-cols-4 gap-1 bg-indigo-800/40 p-1 rounded-xl mt-3 text-[11px] font-bold shrink-0">
         <button id="topTab-main" onclick="switchTab('main')" class="py-1.5 rounded-lg transition text-center bg-white text-indigo-700 shadow-sm">🏠 메인</button>
         <button id="topTab-register" onclick="switchTab('register')" class="py-1.5 rounded-lg transition text-center text-indigo-100 hover:text-white">✍️ 등록</button>
         <button id="topTab-schedule" onclick="switchTab('schedule')" class="py-1.5 rounded-lg transition text-center text-indigo-100 hover:text-white">📊 스케줄</button>
@@ -61,11 +62,11 @@
       <button onclick="clearSampleData()" class="ml-2 shrink-0 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold text-[10px] px-2 py-1 rounded-lg transition">지우기</button>
     </div>
 
-    <!-- 메인 컨텐츠 영역 -->
-    <main class="flex-1 p-3 flex flex-col justify-between overflow-hidden">
+    <!-- 메인 컨텐츠 영역 (하단 잘림 방지를 위한 하단 패딩 확보) -->
+    <main class="flex-1 p-3 pb-16 flex flex-col justify-between overflow-hidden">
 
       <!-- ================= MAIN TAB ================= -->
-      <div id="view-main" class="tab-pane flex-1 flex flex-col justify-between space-y-3 overflow-hidden">
+      <div id="view-main" class="tab-pane flex-1 flex flex-col justify-between space-y-3 overflow-hidden pb-2">
         <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 text-white p-5 rounded-3xl shadow-lg flex flex-col justify-between space-y-3 shrink-0">
           <div class="flex justify-between items-center">
             <span class="text-xs text-indigo-200 font-semibold" id="mainDashboardMonthLabel">2026년 11월 예상 실수령액</span>
@@ -111,11 +112,11 @@
         </div>
       </div>
 
-      <!-- ================= REGISTER TAB (하단 버튼 고정 & 내부 스크롤) ================= -->
-      <div id="view-register" class="tab-pane hidden flex-1 flex flex-col overflow-hidden relative pb-16">
+      <!-- ================= REGISTER TAB (하단 고정 버튼 & 스크롤) ================= -->
+      <div id="view-register" class="tab-pane hidden flex-1 flex flex-col overflow-hidden relative pb-14">
         
-        <!-- STEP 1: 고정/일일 알바 선택 및 프리셋 -->
-        <section id="regStep-1" class="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar space-y-3">
+        <!-- STEP 1: 알바 형태 선택 및 프리셋 -->
+        <section id="regStep-1" class="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar space-y-3 pb-4">
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between mb-1">
               <span class="text-[10px] font-extrabold text-indigo-600 uppercase">STEP 1</span>
@@ -141,7 +142,7 @@
             </div>
           </div>
 
-          <!-- 저장된 근무지 프리셋 (원터치 자동입력) -->
+          <!-- 프리셋 원터치 자동입력 -->
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="text-[11px] font-extrabold text-slate-800 flex items-center gap-1"><span>⚡</span> 저장된 근무지 불러오기 (원터치)</span>
@@ -151,21 +152,19 @@
           </div>
         </section>
 
-        <!-- STEP 2: 상세 정보 입력 및 날짜/시간 (스크롤 가능) -->
-        <section id="regStep-2" class="hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-2">
+        <!-- STEP 2: 통합 정보 입력 (스크롤 가능) -->
+        <section id="regStep-2" class="hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-4">
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between sticky top-0 bg-white py-1 z-10 border-b border-slate-100">
-              <span class="text-[10px] font-extrabold text-indigo-600 uppercase">근무 정보 입력</span>
+              <span class="text-[10px] font-extrabold text-indigo-600 uppercase">근무 정보 및 일정 입력</span>
               <button type="button" onclick="goToRegStep(1)" id="step2TypeIndicator" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">🏢 고정알바</button>
             </div>
 
-            <!-- 근무지 이름 -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">근무지 이름</label>
               <input type="text" id="regWorkplace" placeholder="예: 메가커피 강남점" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
-            <!-- 시급 -->
             <div>
               <div class="flex justify-between items-center mb-0.5">
                 <label class="text-[11px] font-semibold text-slate-600">시급 (원)</label>
@@ -177,17 +176,15 @@
               </div>
             </div>
 
-            <!-- 급여일 입력칸 -->
             <div class="bg-indigo-50/50 p-3 rounded-2xl border border-indigo-100">
               <label class="block text-[11px] font-extrabold text-indigo-950 mb-1">💰 급여 지급일 (월급날)</label>
               <div class="flex items-center gap-2">
                 <input type="number" id="regPayday" min="1" max="31" value="10" class="w-20 p-2 bg-white border border-indigo-200 rounded-xl text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <span class="text-xs font-bold text-indigo-800">일마다 지급</span>
               </div>
-              <p class="text-[10px] text-indigo-600/80 mt-1">해당 날짜에 캘린더 스케줄 하단에 월급 수익이 표시됩니다.</p>
+              <p class="text-[10px] text-indigo-600/80 mt-1">해당 월급날 캘린더 하단에 총 수익이 표시됩니다.</p>
             </div>
 
-            <!-- 주휴수당 / 세금공제 -->
             <div id="fixedHolidayBox" class="bg-indigo-50/70 border border-indigo-100 p-2.5 rounded-xl flex items-center justify-between">
               <div>
                 <div class="text-[11px] font-bold text-indigo-950">🎁 주휴수당 포함 계산</div>
@@ -210,10 +207,10 @@
               <input type="hidden" id="regTaxRate" value="0">
             </div>
 
-            <!-- 근무일시 - 날짜 선택 (단일클릭 즉시 취소 가능) -->
+            <!-- 근무일시 복수 선택 캘린더 (단일클릭 즉시 취소 가능) -->
             <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
               <div class="flex justify-between items-center mb-1.5">
-                <span class="text-[11px] font-extrabold text-slate-700">근무일시 - 날짜 선택 (복수 선택, 클릭시 토글)</span>
+                <span class="text-[11px] font-extrabold text-slate-700">근무 날짜 선택 (클릭시 토글/취소)</span>
                 <span id="regDateCountBadge" class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold">1일 선택됨</span>
               </div>
               <div class="flex justify-between items-center mb-1.5">
@@ -227,7 +224,7 @@
               <div id="regCalendarGrid" class="grid grid-cols-7 gap-0.5"></div>
             </div>
 
-            <!-- 알약형(Pill) 출퇴근 및 휴게 시간 설정 -->
+            <!-- 알약형 출퇴근 및 휴게 시간 설정 -->
             <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
               <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1">⏰ 출퇴근 및 휴게 시간 설정</div>
               <div class="grid grid-cols-3 gap-2">
@@ -254,18 +251,18 @@
           </div>
         </section>
 
-        <!-- 하단 고정 액션 바 (모바일에서 버튼이 절대 가려지지 않음) -->
+        <!-- 하단 고정 액션 바 -->
         <div id="regBottomActionBar" class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-3 border-t border-slate-200 flex gap-2 z-20 shadow-lg">
           <button type="button" id="regBackBtn" onclick="goToRegStep(1)" class="hidden bg-slate-100 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs">◀ 이전</button>
           <button type="button" id="regActionBtn" onclick="handleRegNextOrSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs shadow-sm">
-            시급 · 공제 설정하기 ▶
+            근무 일정 등록하기 ▶
           </button>
         </div>
 
       </div>
 
-      <!-- ================= SCHEDULE TAB (스크롤 가능) ================= -->
-      <div id="view-schedule" class="tab-pane hidden flex-1 flex flex-col space-y-3 overflow-y-auto no-scrollbar pb-4">
+      <!-- ================= SCHEDULE TAB ================= -->
+      <div id="view-schedule" class="tab-pane hidden flex-1 flex flex-col space-y-3 overflow-y-auto no-scrollbar pb-6">
         <section class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm shrink-0 space-y-2">
           <div class="flex items-center justify-between">
             <button onclick="changeMonth(-1)" class="px-2 py-1 bg-slate-100 rounded-lg text-xs font-bold">◀</button>
@@ -289,12 +286,12 @@
           <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
         </section>
 
-        <!-- 스케줄 표시 방식 선택 필터 (위치만 / 시간만 / 위치+시간) -->
+        <!-- 스케줄 표시 방식 선택 필터 -->
         <section class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
           <span class="font-bold text-slate-700">👁️ 일정 표시 형식</span>
           <div class="flex gap-1">
             <button onclick="setScheduleViewMode('location')" id="viewModeBtn-location" class="px-2 py-1 rounded-lg font-bold transition bg-slate-100 text-slate-600">위치만</button>
-            <button onclick="setScheduleViewMode('time')" id="viewModeBtn-time" class="px-2 py-1 rounded-lg font-bold transition bg-slate-100 text-slate-600">시간만(근무시간)</button>
+            <button onclick="setScheduleViewMode('time')" id="viewModeBtn-time" class="px-2 py-1 rounded-lg font-bold transition bg-slate-100 text-slate-600">시간만</button>
             <button onclick="setScheduleViewMode('both')" id="viewModeBtn-both" class="px-2 py-1 rounded-lg font-bold transition bg-indigo-600 text-white">위치+시간</button>
           </div>
         </section>
@@ -304,15 +301,15 @@
           <div id="workplaceBreakdownList" class="space-y-2"></div>
         </section>
 
-        <section class="space-y-2 pb-4">
+        <section class="space-y-2 pb-6">
           <h3 class="text-xs font-extrabold text-slate-800">📋 상세 스케줄 목록</h3>
           <div id="scheduleDetailList" class="space-y-2"></div>
         </section>
       </div>
 
-      <!-- ================= SETTINGS TAB ================= -->
-      <div id="view-settings" class="tab-pane hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pr-0.5">
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <!-- ================= SETTINGS TAB (스크롤 가능하게 수정) ================= -->
+      <div id="view-settings" class="tab-pane hidden flex-1 flex flex-col overflow-y-auto no-scrollbar space-y-3 pb-8">
+        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 shrink-0">
           <h2 class="text-xs font-extrabold text-slate-800">⭐ 근무지 프리셋 관리</h2>
           <div class="bg-slate-50 p-3 rounded-xl space-y-2">
             <input type="text" id="presetName" placeholder="근무지명 (예: 메가커피)" class="w-full p-2 bg-white border rounded-xl text-xs font-semibold">
@@ -328,7 +325,7 @@
           <div id="savedPresetList" class="space-y-2"></div>
         </section>
 
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 pb-4">
+        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 shrink-0 pb-6">
           <h2 class="text-xs font-extrabold text-slate-800">💾 데이터 관리</h2>
           <button type="button" onclick="reloadSampleData()" class="w-full p-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold">🧪 예시 데이터 다시 불러오기</button>
           <button type="button" onclick="requestResetAllData()" class="w-full p-2.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold">🗑️ 전체 데이터 초기화</button>
@@ -352,7 +349,7 @@
       </div>
     </div>
 
-    <!-- 토스트 알림 (1초) -->
+    <!-- 토스트 알림 (1초로 단축) -->
     <div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-2">
       <div id="toastBox" class="bg-slate-900/95 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
         <span id="toastIcon">✅</span>
@@ -377,10 +374,10 @@
   <script>
     const MIN_WAGE_2026 = 10320;
     const STORAGE_KEYS = {
-      SHIFTS: 'myAlbaSync_shifts_v12',
-      PRESETS: 'myAlbaSync_presets_v12',
-      SETTINGS: 'myAlbaSync_settings_v12',
-      INITIALIZED: 'myAlbaSync_init_v12'
+      SHIFTS: 'myAlbaSync_shifts_v13',
+      PRESETS: 'myAlbaSync_presets_v13',
+      SETTINGS: 'myAlbaSync_settings_v13',
+      INITIALIZED: 'myAlbaSync_init_v13'
     };
 
     let currentTab = 'main';
@@ -532,7 +529,7 @@
 
       if (stepNum === 1) {
         backBtn.classList.add('hidden');
-        actionBtn.textContent = '시급 · 공제 설정하기 ▶';
+        actionBtn.textContent = '근무 일정 등록하기 ▶';
       } else {
         backBtn.classList.remove('hidden');
         actionBtn.textContent = '+ 선택한 날짜에 근무 일괄 등록하기';
@@ -1008,9 +1005,10 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      showToast('캘린더 파일(ICS) 다운로드 완료!');
+      showToast('캘린더 파일 다운로드 완료!');
     }
 
+    // 토스트 알림 지속 시간을 정확히 1초(1000ms)로 단축
     function showToast(msg, type = 'success') {
       const box = document.getElementById('toastContainer');
       document.getElementById('toastMessage').textContent = msg;
