@@ -1470,6 +1470,93 @@
   </div>
 
   
+  <!-- MODAL: EDIT WORKPLACE (근무지/시급/세금 수정) -->
+  <div class="modal-overlay" id="modal-edit-workplace" onclick="closeModalOnOverlay(event, 'modal-edit-workplace')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">
+        <span>🏢 알바 근무지 & 세금/시급 수정</span>
+        <button class="btn-icon" onclick="closeModal('modal-edit-workplace')">✕</button>
+      </div>
+
+      <form id="form-edit-workplace" onsubmit="saveEditedWorkplace(event)">
+        <input type="hidden" id="edit-wp-id">
+
+        <div class="form-group">
+          <label class="form-label">🏢 근무지 명칭</label>
+          <input type="text" class="form-input" id="edit-wp-name" required placeholder="예: GS25 호평후레쉬점">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">💼 근무 유형</label>
+            <select class="form-select" id="edit-wp-type">
+              <option value="regular">정기 알바</option>
+              <option value="daily">단기·일일 알바</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">💵 기본 시급 (원)</label>
+            <input type="number" class="form-input" id="edit-wp-rate" required min="10000" step="10">
+          </div>
+        </div>
+
+        <!-- 세금 공제 기본 설정 -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">💰 기본 세금 공제 설정</label>
+            <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">실수령액 자동 반영</span>
+          </div>
+          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button type="button" class="tax-toggle-btn active" id="edit-wp-tax-none" onclick="setEditWpTax('none')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              공제 없음
+            </button>
+            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-33" onclick="setEditWpTax('3.3')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              3.3% 사업소득
+            </button>
+            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-four" onclick="setEditWpTax('four_ins')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              4대보험 (9.4%)
+            </button>
+          </div>
+
+          <!-- 기존 근무 일괄 재계산 옵션 (핵심!) -->
+          <div style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 10px; padding: 10px 12px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #1E293B; cursor: pointer;">
+              <input type="checkbox" id="edit-wp-apply-all-shifts" checked style="width: 18px; height: 18px; accent-color: #4F46E5;">
+              <span>이미 등록된 이번 달 근무 기록에도 변경된 시급/세금 일괄 적용</span>
+            </label>
+            <div style="font-size: 11px; color: #64748B; margin-top: 4px; padding-left: 26px;">
+              체크하시면 홈 화면의 총 예상 월급과 근무 내역이 즉시 재계산됩니다!
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">💳 정산 예정일 (급여일)</label>
+          <select class="form-select" id="edit-wp-paytype">
+            <option value="monthly_15">매월 15일 입금</option>
+            <option value="monthly_10">매월 10일 입금</option>
+            <option value="monthly_last">매월 말일 입금</option>
+            <option value="same_day">근무 당일 즉시 입금</option>
+            <option value="next_day">근무 익일 입금</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📍 근무지 위치 (선택)</label>
+          <input type="text" class="form-input" id="edit-wp-location" placeholder="예: 평내호평역 인근, 강남역 등">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button type="button" class="btn-cancel-modal" onclick="closeModal('modal-edit-workplace')">✕ 닫기</button>
+          <button type="submit" class="btn-submit" style="flex: 2; margin-top: 0; padding: 15px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+            💾 수정 사항 저장
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: EDIT SHIFT (근무 수정) -->
   <div class="modal-overlay" id="modal-edit-shift" onclick="closeModalOnOverlay(event, 'modal-edit-shift')">
     <div class="bottom-sheet">
@@ -1643,7 +1730,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.5.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.6.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -1885,6 +1972,35 @@
                 </div>
               </div>
 
+              <!-- 세금 상태 및 빠른 적용 배너 -->
+              ${(() => {
+                const wpShifts = shifts.filter(s => s.workplaceId === wp.id);
+                const countWithTax = wpShifts.filter(s => s.taxType === '3.3' || (s.taxAmount && s.taxAmount > 0)).length;
+                const totalWpTax = wpShifts.reduce((acc, s) => acc + (s.taxAmount || (s.taxType === '3.3' ? Math.floor((s.wage/0.967)*0.033) : 0)), 0);
+
+                if (wpShifts.length > 0 && countWithTax === 0) {
+                  return `
+                    <div style="margin-bottom: 10px; background: #FEF3C7; border: 1.5px solid #FCD34D; border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <div style="font-size: 11.5px; font-weight: 800; color: #92400E;">⚠️ 세금 미공제 (세전 금액 표시 중)</div>
+                        <div style="font-size: 10.5px; color: #B45309;">총 ${wpShifts.length}건 근무 기록</div>
+                      </div>
+                      <button type="button" onclick="quickApplyTaxToWorkplace('${wp.id}', '3.3')" style="background: #D97706; color: #FFFFFF; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);">
+                        ⚡ 3.3% 일괄 적용
+                      </button>
+                    </div>
+                  `;
+                } else if (totalWpTax > 0) {
+                  return `
+                    <div style="margin-bottom: 10px; background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                      <span style="color: #4338CA; font-weight: 700;">🏷️ 3.3% 세금 공제 적용됨 (${countWithTax}건)</span>
+                      <strong style="color: #4F46E5;">-₩ ${totalWpTax.toLocaleString()}</strong>
+                    </div>
+                  `;
+                }
+                return '';
+              })()}
+
               <div class="wp-payday-pill">
                 <span>💳 정산 예정일</span>
                 <strong>${wp.payTypeLabel || '익월 15일'}</strong>
@@ -1896,6 +2012,7 @@
   `<button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>`
 }
                 <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무 등록</button>
+                <button class="btn-action btn-edit" style="color: #4F46E5; border: 1.5px solid #C7D2FE; background: #EEF2FF; font-weight: 700; padding: 7px 12px; border-radius: 8px; cursor: pointer;" onclick="openEditWorkplaceModal('${wp.id}')">✏️ 수정</button>
                 <button class="btn-action btn-del" onclick="deleteWorkplace('${wp.id}')" title="근무지 삭제">삭제</button>
               </div>
             </div>
@@ -2801,6 +2918,146 @@
     // --- EDIT SHIFT ENGINE ---
     let editShiftTaxType = 'none';
 
+
+    // --- WORKPLACE EDIT & QUICK TAX ENGINE ---
+    let editWpTaxType = 'none';
+
+    function openEditWorkplaceModal(wpId) {
+      const wp = workplaces.find(w => w.id === wpId);
+      if (!wp) return;
+
+      document.getElementById('edit-wp-id').value = wp.id;
+      document.getElementById('edit-wp-name').value = wp.name;
+      document.getElementById('edit-wp-type').value = wp.type || 'regular';
+      document.getElementById('edit-wp-rate').value = wp.rate;
+      document.getElementById('edit-wp-paytype').value = wp.payType || 'monthly_15';
+      document.getElementById('edit-wp-location').value = wp.location || '';
+
+      const wpShifts = shifts.filter(s => s.workplaceId === wp.id);
+      const hasTax33 = wpShifts.some(s => s.taxType === '3.3');
+      const hasTaxFour = wpShifts.some(s => s.taxType === 'four_ins');
+
+      let currentTax = wp.defaultTaxType || (hasTax33 ? '3.3' : (hasTaxFour ? 'four_ins' : 'none'));
+      setEditWpTax(currentTax);
+
+      openModal('modal-edit-workplace');
+    }
+
+    function setEditWpTax(type) {
+      editWpTaxType = type;
+      const btnNone = document.getElementById('edit-wp-tax-none');
+      const btn33 = document.getElementById('edit-wp-tax-33');
+      const btnFour = document.getElementById('edit-wp-tax-four');
+
+      [btnNone, btn33, btnFour].forEach(b => {
+        b.style.borderColor = '#CBD5E1';
+        b.style.color = '#64748B';
+        b.style.background = '#FFFFFF';
+      });
+
+      if (type === 'none') {
+        btnNone.style.borderColor = '#4F46E5';
+        btnNone.style.color = '#4F46E5';
+        btnNone.style.background = '#EEF2FF';
+      } else if (type === '3.3') {
+        btn33.style.borderColor = '#4F46E5';
+        btn33.style.color = '#4F46E5';
+        btn33.style.background = '#EEF2FF';
+      } else if (type === 'four_ins') {
+        btnFour.style.borderColor = '#4F46E5';
+        btnFour.style.color = '#4F46E5';
+        btnFour.style.background = '#EEF2FF';
+      }
+    }
+
+    function quickApplyTaxToWorkplace(wpId, taxType) {
+      const wp = workplaces.find(w => w.id === wpId);
+      if (!wp) return;
+
+      let count = 0;
+      shifts.forEach(s => {
+        if (s.workplaceId === wpId) {
+          s.taxType = taxType;
+          const gross = s.grossWage || Math.round(s.hours * wp.rate);
+          s.grossWage = gross;
+          if (taxType === '3.3') {
+            s.taxAmount = Math.floor(gross * 0.033);
+          } else if (taxType === 'four_ins') {
+            s.taxAmount = Math.floor(gross * 0.094);
+          } else {
+            s.taxAmount = 0;
+          }
+          s.wage = gross - s.taxAmount;
+          count++;
+        }
+      });
+
+      wp.defaultTaxType = taxType;
+      saveState();
+
+      showToast(`🎉 ${wp.name} ${count}건 근무에 3.3% 세금 일괄 적용 완료!`);
+      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+      if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+      if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+    }
+
+    function saveEditedWorkplace(e) {
+      e.preventDefault();
+      const wpId = document.getElementById('edit-wp-id').value;
+      const wp = workplaces.find(w => w.id === wpId);
+      if (!wp) return;
+
+      const name = document.getElementById('edit-wp-name').value.trim();
+      const type = document.getElementById('edit-wp-type').value;
+      const rate = parseInt(document.getElementById('edit-wp-rate').value) || 10320;
+      const payType = document.getElementById('edit-wp-paytype').value;
+      const location = document.getElementById('edit-wp-location').value.trim();
+      const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
+
+      wp.name = name;
+      wp.type = type;
+      wp.rate = rate;
+      wp.payType = payType;
+      wp.location = location;
+      wp.defaultTaxType = editWpTaxType;
+
+      const payLabels = {
+        monthly_15: '매월 15일 입금',
+        monthly_10: '매월 10일 입금',
+        monthly_last: '매월 말일 입금',
+        same_day: '당일 즉시 입금',
+        next_day: '익일 입금'
+      };
+      wp.payTypeLabel = payLabels[payType] || '매월 15일 입금';
+
+      // If applyAll is checked, recalculate all existing shifts for this workplace
+      if (applyAll) {
+        shifts.forEach(s => {
+          if (s.workplaceId === wpId) {
+            const gross = Math.round(s.hours * rate);
+            s.grossWage = gross;
+            s.taxType = editWpTaxType;
+            if (editWpTaxType === '3.3') {
+              s.taxAmount = Math.floor(gross * 0.033);
+            } else if (editWpTaxType === 'four_ins') {
+              s.taxAmount = Math.floor(gross * 0.094);
+            } else {
+              s.taxAmount = 0;
+            }
+            s.wage = gross - s.taxAmount;
+          }
+        });
+      }
+
+      saveState();
+      closeModal('modal-edit-workplace');
+      showToast(`🎉 '${name}' 근무지 및 세금/시급 정보가 저장되었습니다!`);
+
+      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+      if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+      if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+    }
+
     function openEditShiftModal(shiftId) {
       const shift = shifts.find(s => s.id === shiftId);
       if (!shift) return;
@@ -3153,7 +3410,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.5.0";
+    const CURRENT_APP_VERSION = "2.6.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
