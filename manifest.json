@@ -1,0 +1,21 @@
+{
+  "name": "하우머치+ (HowMuch Plus)",
+  "short_name": "하우머치+",
+  "description": "정기·일일 알바 급여 계산 및 애플 캘린더 연동 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
