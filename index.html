@@ -1641,8 +1641,8 @@
     const SAMPLE_VERSION = 'v2_mega_coex';
     let storedVersion = localStorage.getItem('albalog_sample_ver');
 
-    // 메가커피 강남점 + 코엑스 행사알바 2개 예시로 자동 갱신
-    if (storedVersion !== SAMPLE_VERSION) {
+    // 최초 접속 시에만 기본 샘플 데이터 세팅 (이후 업데이트나 새로고침 시 사용자 데이터 영구 보존)
+    if (!localStorage.getItem('albalog_workplaces')) {
       localStorage.setItem('albalog_sample_ver', SAMPLE_VERSION);
       localStorage.setItem('albalog_workplaces', JSON.stringify(DEFAULT_WORKPLACES));
       localStorage.setItem('albalog_shifts', JSON.stringify(DEFAULT_SHIFTS));
