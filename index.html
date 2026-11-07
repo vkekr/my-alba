@@ -378,6 +378,11 @@
       background: #EEF2FF;
       color: #4F46E5;
     }
+    .btn-action.btn-del {
+      background: #FEE2E2;
+      color: #EF4444;
+      flex: 0 0 54px;
+    }
     .btn-action:active {
       transform: scale(0.97);
     }
@@ -403,12 +408,13 @@
       background: #F1F5F9;
     }
 
-    /* --- CALENDAR VIEW STYLES --- */
+    /* --- CALENDAR VIEW STYLES (STRICT FIXED HEIGHT) --- */
     .cal-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      height: 32px;
     }
     .cal-month-header {
       font-size: 20px;
@@ -434,6 +440,8 @@
       border-radius: 12px;
       padding: 3px;
       margin-bottom: 12px;
+      height: 36px;
+      box-sizing: border-box;
     }
     .cal-mode-pill {
       flex: 1;
@@ -446,6 +454,7 @@
       cursor: pointer;
       border: none;
       background: none;
+      line-height: 18px;
     }
     .cal-mode-pill.active {
       background: #FFFFFF;
@@ -462,27 +471,34 @@
       font-weight: 700;
       margin-bottom: 6px;
       color: var(--text-muted);
+      height: 20px;
+      line-height: 20px;
     }
     .cal-week-sun { color: #EF4444; }
     .cal-week-sat { color: #3B82F6; }
 
-    /* Calendar Days Grid */
+    /* Calendar Days Grid - Strictly Constant Height */
     .cal-days-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: 86px;
       gap: 3px;
       margin-bottom: 16px;
     }
     .cal-cell {
-      min-height: 84px;
+      height: 86px;
+      max-height: 86px;
+      overflow: hidden;
+      box-sizing: border-box;
       background: #FFFFFF;
       border: 1px solid #F1F5F9;
       border-radius: 10px;
-      padding: 4px 2px;
+      padding: 4px 2px 3px;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: all 0.15s;
+      position: relative;
+      transition: background 0.15s;
     }
     .cal-cell:active {
       background: #EEF2FF;
@@ -492,40 +508,56 @@
       background: #F8FAFC;
     }
     .cal-cell.other-month {
-      opacity: 0.3;
+      opacity: 0.25;
       background: #F8FAFC;
+      pointer-events: none;
     }
     .cal-cell-num {
       font-size: 11.5px;
       font-weight: 700;
       padding-left: 3px;
       margin-bottom: 2px;
+      line-height: 14px;
+      height: 14px;
+    }
+    
+    .cal-chips-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 46px;
     }
     .cal-event-chip {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 700;
-      padding: 2px 4px;
-      border-radius: 5px;
-      margin-bottom: 2px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 3px;
+      border-radius: 4px;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 1.15;
+      box-sizing: border-box;
     }
     .chip-blue { background: #EEF2FF; color: #4F46E5; }
-    .chip-green { background: #ECFDF5; color: #059669; }
     .chip-amber { background: #FFFBEB; color: #D97706; }
     .chip-payday { background: #FEF3C7; color: #92400E; font-weight: 800; border: 0.5px solid #F59E0B; }
     .chip-tax { background: #FEE2E2; color: #DC2626; }
 
     .cal-cell-wage {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 700;
       color: #334155;
       text-align: right;
-      margin-top: auto;
       padding-right: 2px;
+      height: 15px;
+      line-height: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      margin-top: auto;
     }
 
     /* iOS Calendar Sync Banner */
@@ -538,7 +570,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
-      margin-top: 12px;
+      margin-top: 4px;
     }
     .sync-banner-text {
       display: flex;
@@ -643,7 +675,7 @@
       gap: 8px;
     }
 
-    /* Bottom Tab Bar */
+    /* Bottom Tab Bar (3 Tabs Only) */
     nav.tab-bar {
       position: fixed;
       bottom: 0;
@@ -669,7 +701,7 @@
       justify-content: center;
       color: #94A3B8;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
       transition: color 0.15s;
       padding-top: 5px;
@@ -823,7 +855,7 @@
         <button class="btn-icon" onclick="exportMonthToAppleCalendar()" title="애플 캘린더 전체 동기화">
           📅
         </button>
-        <button class="btn-icon" onclick="switchTab('settings')" title="설정">
+        <button class="btn-icon" onclick="openSettingsModal()" title="설정">
           ⚙️
         </button>
       </div>
@@ -834,7 +866,7 @@
       <!-- Injected by JS -->
     </main>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation: 3 TABS ONLY (Settings moved to Top Header) -->
     <nav class="tab-bar">
       <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
         <div class="tab-icon">🏠</div>
@@ -847,10 +879,6 @@
       <div class="tab-item" id="tab-gigs" onclick="switchTab('gigs')">
         <div class="tab-icon">⭐</div>
         <div>일일정산</div>
-      </div>
-      <div class="tab-item" id="tab-settings" onclick="switchTab('settings')">
-        <div class="tab-icon">⚙️</div>
-        <div>전체</div>
       </div>
     </nav>
   </div>
@@ -952,7 +980,7 @@
 
         <div class="form-group">
           <label class="form-label">근무 메모</label>
-          <input type="text" class="form-input" id="shift-memo" placeholder="예: 행사 스태프 지원">
+          <input type="text" class="form-input" id="shift-memo" placeholder="예: 행사 스태프 근무">
         </div>
 
         <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; margin-bottom: 14px; border: 1px solid #E2E8F0;">
@@ -981,6 +1009,49 @@
     </div>
   </div>
 
+  <!-- MODAL: SETTINGS & DATA RESET -->
+  <div class="modal-overlay" id="modal-settings" onclick="closeModalOnOverlay(event, 'modal-settings')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">
+        <span>알바로그 설정</span>
+        <button class="btn-icon" onclick="closeModal('modal-settings')">✕</button>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.0)
+        </p>
+      </div>
+
+      <div class="gig-detail-card">
+        <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 6px;">📲 아이폰 홈 화면 추가 (PWA)</h3>
+        <p style="font-size: 12.5px; color: #475569; line-height: 1.5;">
+          사파리(Safari)에서 <strong>[공유] &gt; [홈 화면에 추가]</strong>를 누르면 아이폰 바탕화면에 '알바로그' 앱 아이콘이 생성되어 전체화면으로 실행됩니다.
+        </p>
+      </div>
+
+      <div class="gig-detail-card">
+        <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 6px;">애플 캘린더(.ics) 일괄 동기화</h3>
+        <p style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+          이번 달 등록된 근무 일정과 알바비 입금 예정일을 한 번에 캘린더 파일로 내보냅니다.
+        </p>
+        <button class="btn-submit" style="margin-top: 0; padding: 11px; font-size: 14px;" onclick="exportMonthToAppleCalendar()">이번 달 전체 일정 내보내기</button>
+      </div>
+
+      <!-- DANGER ZONE: DATA MANAGEMENT -->
+      <div class="gig-detail-card" style="border: 1.5px solid #FECACA; background: #FFF5F5;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #DC2626; margin-bottom: 6px;">데이터 관리 & 초기화</h3>
+        <p style="font-size: 12px; color: #991B1B; line-height: 1.5; margin-bottom: 12px;">
+          등록된 모든 알바 근무지와 근무 일정, 급여 정산 데이터를 초기화합니다. 삭제된 데이터는 복구할 수 없습니다.
+        </p>
+        <button class="btn-submit" style="background: #EF4444; margin-top: 0; padding: 12px; font-size: 14px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);" onclick="confirmResetAllData()">
+          모든 기록 삭제 (데이터 초기화)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">알림 메시지</div>
 
   <script>
@@ -1000,13 +1071,13 @@
       {
         id: "wp_2",
         type: "regular",
-        name: "뉴클래스 학원",
+        name: "스터디센터",
         rate: 12000,
         color: "#059669",
-        location: "스터디센터 학원가",
+        location: "학원가 센터",
         payType: "monthly_10",
         payTypeLabel: "매월 10일 입금",
-        memo: "중등부 수학 첨삭 조교"
+        memo: "첨삭 조교"
       },
       {
         id: "wp_3",
@@ -1061,7 +1132,6 @@
       if (tab === 'home') renderHome(main);
       else if (tab === 'cal') renderCalendar(main);
       else if (tab === 'gigs') renderGigs(main);
-      else if (tab === 'settings') renderSettings(main);
     }
 
     // --- HOME VIEW ---
@@ -1121,41 +1191,54 @@
         <div class="card-list" id="wp-card-list">
       `;
 
-      workplaces.forEach(wp => {
-        const amount = wpTotals[wp.id] || 0;
-        const isDaily = wp.type === 'daily';
+      if (workplaces.length === 0) {
         html += `
-          <div class="wp-card" data-type="${wp.type}">
-            <div class="wp-card-top">
-              <div class="wp-title-wrap">
-                <div class="wp-color-dot" style="background: ${wp.color}"></div>
-                <div class="wp-name">${wp.name}</div>
-              </div>
-              <span class="wp-type-badge ${isDaily ? 'badge-daily' : 'badge-regular'}">
-                ${isDaily ? '단기·일일' : '정기'}
-              </span>
-            </div>
-
-            <div class="wp-amount-wrap">
-              <div class="wp-amount">₩ ${amount.toLocaleString()}</div>
-              <div class="wp-meta">
-                <span>시급 ${wp.rate.toLocaleString()}원</span>
-                ${wp.location ? `<span>· 📍 ${wp.location}</span>` : ''}
-              </div>
-            </div>
-
-            <div class="wp-payday-pill">
-              <span>💳 정산 예정일</span>
-              <strong>${wp.payTypeLabel || '익월 15일'}</strong>
-            </div>
-
-            <div class="wp-card-actions">
-              <button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>
-              <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무 등록</button>
-            </div>
+          <div style="text-align: center; padding: 40px 20px; background: #FFFFFF; border-radius: 18px; border: 1px dashed #CBD5E1; margin-bottom: 20px;">
+            <div style="font-size: 32px; margin-bottom: 10px;">📋</div>
+            <div style="font-size: 16px; font-weight: 800; color: #1E293B; margin-bottom: 6px;">등록된 알바 근무지가 없습니다</div>
+            <div style="font-size: 13px; color: #64748B;">아래 버튼을 눌러 첫 알바나 단기 근무지를 등록해 보세요!</div>
           </div>
         `;
-      });
+      } else {
+        workplaces.forEach(wp => {
+          const amount = wpTotals[wp.id] || 0;
+          const isDaily = wp.type === 'daily';
+          html += `
+            <div class="wp-card" data-type="${wp.type}">
+              <div class="wp-card-top">
+                <div class="wp-title-wrap">
+                  <div class="wp-color-dot" style="background: ${wp.color}"></div>
+                  <div class="wp-name">${wp.name}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="wp-type-badge ${isDaily ? 'badge-daily' : 'badge-regular'}">
+                    ${isDaily ? '단기·일일' : '정기'}
+                  </span>
+                </div>
+              </div>
+
+              <div class="wp-amount-wrap">
+                <div class="wp-amount">₩ ${amount.toLocaleString()}</div>
+                <div class="wp-meta">
+                  <span>시급 ${wp.rate.toLocaleString()}원</span>
+                  ${wp.location ? `<span>· 📍 ${wp.location}</span>` : ''}
+                </div>
+              </div>
+
+              <div class="wp-payday-pill">
+                <span>💳 정산 예정일</span>
+                <strong>${wp.payTypeLabel || '익월 15일'}</strong>
+              </div>
+
+              <div class="wp-card-actions">
+                <button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>
+                <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무 등록</button>
+                <button class="btn-action btn-del" onclick="deleteWorkplace('${wp.id}')" title="근무지 삭제">삭제</button>
+              </div>
+            </div>
+          `;
+        });
+      }
 
       html += `
         </div>
@@ -1179,7 +1262,21 @@
       });
     }
 
-    // --- CALENDAR VIEW ---
+    function deleteWorkplace(wpId) {
+      const wp = workplaces.find(w => w.id === wpId);
+      if (!wp) return;
+      if (confirm(`'${wp.name}' 근무지를 삭제하시겠어요?\n\n이 근무지에 등록된 근무 기록도 함께 정리됩니다.`)) {
+        workplaces = workplaces.filter(w => w.id !== wpId);
+        shifts = shifts.filter(s => s.workplaceId !== wpId);
+        saveState();
+        showToast(`'${wp.name}' 근무지가 삭제되었어요.`);
+        if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+        if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+        if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+      }
+    }
+
+    // --- CALENDAR VIEW (STRICT FIXED HEIGHT) ---
     function renderCalendar(container) {
       let totalWage = 0;
       shifts.forEach(s => {
@@ -1223,6 +1320,8 @@
 
       const firstDayIndex = new Date(selectedYear, selectedMonth - 1, 1).getDay();
       const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+      // Always compute standard rows so calendar height NEVER jumps
+      const totalCells = Math.ceil((firstDayIndex + lastDay) / 7) * 7;
 
       for (let i = 0; i < firstDayIndex; i++) {
         html += `<div class="cal-cell other-month"></div>`;
@@ -1231,13 +1330,12 @@
       for (let day = 1; day <= lastDay; day++) {
         const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         const dayShifts = shifts.filter(s => s.date === dateStr);
-        // Paydays that land on this date
         const paydaysLandingToday = shifts.filter(s => s.payday === dateStr && !s.isTax);
 
         const dayOfWeek = (firstDayIndex + day - 1) % 7;
         const isSun = dayOfWeek === 0;
         const isSat = dayOfWeek === 6;
-        const isToday = day === 7;
+        const isToday = day === 7 && selectedYear === 2026 && selectedMonth === 11;
 
         let numColor = '#0F172A';
         if (isSun) numColor = '#EF4444';
@@ -1246,17 +1344,18 @@
         html += `
           <div class="cal-cell ${isToday ? 'today' : ''}" onclick="openDateDetail('${dateStr}')">
             <div class="cal-cell-num" style="color: ${numColor};">${day}</div>
+            <div class="cal-chips-container">
         `;
 
         let dayTotalWage = 0;
 
-        // If Payday mode, show Payday alert chip first!
+        // If Payday mode or day has payday, show Payday alert chip first
         if (paydaysLandingToday.length > 0 && (calViewMode === 'payday' || day === 15)) {
-          const sumPay = paydaysLandingToday.reduce((a,c) => a + c.wage, 0);
           html += `<div class="cal-event-chip chip-payday">💰 입금일</div>`;
         }
 
-        dayShifts.forEach(s => {
+        // Show max 2 shift chips so cell height is never exceeded
+        dayShifts.slice(0, 2).forEach(s => {
           dayTotalWage += s.wage;
           const wp = workplaces.find(w => w.id === s.workplaceId) || {};
           let chipClass = 'chip-blue';
@@ -1265,19 +1364,32 @@
           if (s.isTax) chipClass = 'chip-tax';
 
           let text = `${s.hours}시간`;
-          if (calViewMode === 'loc_wage') text = wp.name;
+          if (calViewMode === 'loc_wage') text = wp.name || '알바';
           else if (calViewMode === 'wage_only') text = `${Math.round(s.wage/1000)}k`;
-          else if (calViewMode === 'payday') text = s.isSettled ? '✅입금됨' : '⏳정산대기';
+          else if (calViewMode === 'payday') text = s.isSettled ? '✅입금됨' : '⏳대기';
 
           if (s.isTax) text = '세금';
           html += `<div class="cal-event-chip ${chipClass}">${text}</div>`;
         });
+
+        // Add remaining count if > 2
+        if (dayShifts.length > 2) {
+          html += `<div class="cal-event-chip chip-blue">+${dayShifts.length - 2}</div>`;
+        }
+
+        html += `</div>`; // end cal-chips-container
 
         if (dayShifts.length > 0) {
           html += `<div class="cal-cell-wage">${dayTotalWage.toLocaleString()}원</div>`;
         }
 
         html += `</div>`;
+      }
+
+      // Fill remaining cells in the last week row
+      const remainingCells = totalCells - (firstDayIndex + lastDay);
+      for (let i = 0; i < remainingCells; i++) {
+        html += `<div class="cal-cell other-month"></div>`;
       }
 
       html += `
@@ -1350,46 +1462,56 @@
         <div class="card-list">
       `;
 
-      dailyShifts.forEach(s => {
-        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '단기알바', rate: 12000 };
+      if (dailyShifts.length === 0) {
         html += `
-          <div class="gig-detail-card">
-            <div class="gig-card-head">
-              <div>
-                <div class="gig-name">${wp.name}</div>
-                <div class="gig-meta-item" style="margin-top: 4px;">
-                  <span>📅</span>
-                  <span>${s.date} (${s.hours}시간 근무)</span>
-                </div>
-              </div>
-              <span class="gig-status-pill ${s.isSettled ? 'status-done' : 'status-pending'}" onclick="toggleSettlement('${s.id}')">
-                ${s.isSettled ? '✅ 입금완료' : '⏳ 미입금 (터치시 입금완료)'}
-              </span>
-            </div>
-
-            <div class="gig-meta-item">
-              <span>📍</span>
-              <span>${wp.location || '근무 장소 미지정'}</span>
-            </div>
-
-            <div class="gig-payday-box">
-              <span>💰 정산 금액 : <strong>${s.wage.toLocaleString()}원</strong></span>
-              <span style="color: #4F46E5; font-weight: 700;">입금일: ${s.payday || '당일'}</span>
-            </div>
-
-            ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-bottom: 10px;">📝 ${s.memo}</div>` : ''}
-
-            <div class="gig-btn-row">
-              <button class="btn-action btn-add" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
-                📅 애플 캘린더에 일정+입금일 등록
-              </button>
-              <button class="btn-action btn-clock" style="color: #EF4444;" onclick="deleteShift('${s.id}')">
-                삭제
-              </button>
-            </div>
+          <div style="text-align: center; padding: 40px 20px; background: #FFFFFF; border-radius: 18px; border: 1px dashed #CBD5E1;">
+            <div style="font-size: 32px; margin-bottom: 10px;">⭐</div>
+            <div style="font-size: 16px; font-weight: 800; color: #1E293B; margin-bottom: 6px;">등록된 단기 알바가 없습니다</div>
+            <div style="font-size: 13px; color: #64748B;">단기알바를 등록하면 입금 예정일과 미입금 여부를 꼼꼼하게 추적해 드려요.</div>
           </div>
         `;
-      });
+      } else {
+        dailyShifts.forEach(s => {
+          const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '단기알바', rate: 12000 };
+          html += `
+            <div class="gig-detail-card">
+              <div class="gig-card-head">
+                <div>
+                  <div class="gig-name">${wp.name}</div>
+                  <div class="gig-meta-item" style="margin-top: 4px;">
+                    <span>📅</span>
+                    <span>${s.date} (${s.hours}시간 근무)</span>
+                  </div>
+                </div>
+                <span class="gig-status-pill ${s.isSettled ? 'status-done' : 'status-pending'}" onclick="toggleSettlement('${s.id}')">
+                  ${s.isSettled ? '✅ 입금완료' : '⏳ 미입금 (터치시 완료)'}
+                </span>
+              </div>
+
+              <div class="gig-meta-item">
+                <span>📍</span>
+                <span>${wp.location || '근무 장소 미지정'}</span>
+              </div>
+
+              <div class="gig-payday-box">
+                <span>💰 정산 금액 : <strong>${s.wage.toLocaleString()}원</strong></span>
+                <span style="color: #4F46E5; font-weight: 700;">입금일: ${s.payday || '당일'}</span>
+              </div>
+
+              ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-bottom: 10px;">📝 ${s.memo}</div>` : ''}
+
+              <div class="gig-btn-row">
+                <button class="btn-action btn-add" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
+                  애플 캘린더에 일정+입금일 등록
+                </button>
+                <button class="btn-action btn-clock" style="color: #EF4444;" onclick="deleteShift('${s.id}')">
+                  삭제
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
 
       html += `</div>`;
       container.innerHTML = html;
@@ -1406,39 +1528,26 @@
       }
     }
 
-    // --- SETTINGS VIEW ---
-    function renderSettings(container) {
-      container.innerHTML = `
-        <div style="margin-bottom: 20px;">
-          <h2 style="font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">알바로그 설정</h2>
-          <p style="font-size: 13px; color: var(--text-muted);">구름이 직접 만든 스마트 알바 & 정산 플래너</p>
-        </div>
-
-        <div class="gig-detail-card">
-          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">📲 아이폰 홈 화면 추가 (PWA)</h3>
-          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
-            사파리(Safari)에서 <strong>[공유] > [홈 화면에 추가]</strong>를 누르면 아이폰 바탕화면에 '알바로그' 전용 앱 아이콘이 생성되어 전체화면으로 실행됩니다.
-          </p>
-        </div>
-
-        <div class="gig-detail-card">
-          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 8px;"> 애플 캘린더(.ics) 입금 알림 연동</h3>
-          <p style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 12px;">
-            근무 시간뿐만 아니라 <strong>알바비 입금 예정일</strong>까지 애플 캘린더에 잊지 않도록 알림 이벤트로 등록할 수 있습니다.
-          </p>
-          <button class="btn-submit" onclick="exportMonthToAppleCalendar()">이번 달 전체 일정 캘린더에 내보내기</button>
-        </div>
-
-        <div class="gig-detail-card">
-          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">🚀 GitHub Pages & 앱스토어 준비</h3>
-          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
-            저장소에 푸시 후 GitHub Pages를 켜면 즉시 배포되며, Capacitor를 통해 iOS 앱스토어 정식 등록이 가능합니다.
-          </p>
-        </div>
-      `;
+    // --- MODAL CONTROLS ---
+    function openSettingsModal() {
+      document.getElementById('modal-settings').classList.add('active');
     }
 
-    // --- MODAL CONTROLS ---
+    function confirmResetAllData() {
+      if (confirm("⚠️ 정말 모든 알바와 근무 기록을 삭제하시겠어요?\n\n등록된 모든 근무지와 정산 내역이 깨끗하게 삭제되며 되돌릴 수 없습니다.")) {
+        localStorage.removeItem('albalog_workplaces');
+        localStorage.removeItem('albalog_shifts');
+        workplaces = [];
+        shifts = [];
+        saveState();
+        closeModal('modal-settings');
+        showToast("모든 기록이 깨끗하게 초기화되었어요.");
+        if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+        if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+        if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+      }
+    }
+
     function openAddWorkplaceModal(forceType) {
       document.getElementById('modal-add-workplace').classList.add('active');
       setTypeTab(forceType || 'regular');
@@ -1500,6 +1609,11 @@
     }
 
     function openAddShiftModal(workplaceId, date) {
+      if (workplaces.length === 0) {
+        showToast("먼저 알바 근무지를 등록해 주세요!");
+        openAddWorkplaceModal();
+        return;
+      }
       const select = document.getElementById('shift-workplace-id');
       select.innerHTML = workplaces.map(w => `<option value="${w.id}" ${w.id === workplaceId ? 'selected' : ''}>${w.name} (${w.type === 'daily' ? '일일' : '정기'})</option>`).join('');
 
@@ -1706,7 +1820,6 @@
         }
       ];
 
-      // Add payday reminder if payday is specified and different from shift date
       if (shift.payday && shift.payday !== shift.date) {
         events.push({
           id: shift.id + "_payday",
@@ -1754,17 +1867,17 @@
           description: `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`
         });
 
-        if (s.payday && s.payday !== s.date) {
-          events.push({
-            id: s.id + "_payday",
-            date: s.payday,
-            start: "10:00",
-            end: "10:30",
-            title: `💰 [알바비 입금일] ${wp.name} (${s.wage.toLocaleString()}원)`,
-            location: "내 계좌",
-            description: `${s.date} 근무분 알바비 ${s.wage.toLocaleString()}원 입금 확인`
-          });
-        }
+          if (s.payday && s.payday !== s.date) {
+            events.push({
+              id: s.id + "_payday",
+              date: s.payday,
+              start: "10:00",
+              end: "10:30",
+              title: `💰 [알바비 입금일] ${wp.name} (${s.wage.toLocaleString()}원)`,
+              location: "내 계좌",
+              description: `${s.date} 근무분 알바비 ${s.wage.toLocaleString()}원 입금 확인`
+            });
+          }
       });
 
       const ics = generateIcs(events);
