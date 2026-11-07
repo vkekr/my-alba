@@ -994,6 +994,149 @@
       margin-bottom: 16px;
     }
 
+  
+    /* Real-Time Clock In Banner */
+    .active-clock-banner {
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      border-radius: 20px;
+      padding: 18px 20px;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.4);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .active-clock-banner::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .clock-banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .clock-live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #A5B4FC;
+    }
+    .live-pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10B981;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .clock-banner-time-start {
+      font-size: 12px;
+      color: #C7D2FE;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    .clock-money-row {
+      margin-bottom: 14px;
+    }
+    .clock-money-label {
+      font-size: 12.5px;
+      color: #C7D2FE;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .clock-money-value {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #34D399;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .clock-money-value .currency {
+      font-size: 22px;
+      color: #A7F3D0;
+      font-weight: 800;
+    }
+    .clock-stats-row {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #E0E7FF;
+      margin-bottom: 16px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .clock-btn-row {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-clock-out {
+      flex: 1;
+      background: #EF4444;
+      color: #FFFFFF;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-clock-out:active {
+      transform: scale(0.98);
+    }
+    .btn-clock-cancel {
+      background: rgba(255, 255, 255, 0.15);
+      color: #E2E8F0;
+      border: none;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-action.btn-clocked-in {
+      background: #EF4444 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4) !important;
+    }
+    .btn-cancel-modal {
+      flex: 1;
+      padding: 15px;
+      border-radius: 14px;
+      border: 1.5px solid #CBD5E1;
+      background: #F1F5F9;
+      color: #475569;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .btn-cancel-modal:active {
+      background: #E2E8F0;
+      transform: scale(0.98);
+    }
+
   </style>
 </head>
 <body>
@@ -1101,7 +1244,9 @@
       <div class="sheet-handle"></div>
       <div class="sheet-title">
         <span>근무 등록</span>
-        <button class="btn-icon" onclick="closeModal('modal-add-shift')">✕</button>
+        <button class="btn-icon" onclick="closeModal('modal-add-shift')" style="background: #F1F5F9; border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 700; width: auto; height: auto; color: #475569;">
+          ✕ 닫기
+        </button>
       </div>
 
       <form id="form-shift" onsubmit="saveShift(event)">
@@ -1222,10 +1367,49 @@
           </label>
         </div>
 
-        <button type="submit" class="btn-submit" id="btn-save-shift" style="padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
-          근무 저장하기
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="button" class="btn-cancel-modal" onclick="closeModal('modal-add-shift')">
+            ✕ 닫기 (취소)
+          </button>
+          <button type="submit" class="btn-submit" id="btn-save-shift" style="flex: 2; margin-top: 0; padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+            근무 저장하기
+          </button>
+        </div>
       </form>
+    </div>
+  </div>
+
+  
+  <!-- MODAL: CLOCK OUT RECORDED (퇴근 정산 확인) -->
+  <div class="modal-overlay" id="modal-clock-out-result" onclick="closeModalOnOverlay(event, 'modal-clock-out-result')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">
+        <span>🎉 오늘 퇴근 완료!</span>
+        <button class="btn-icon" onclick="closeModal('modal-clock-out-result')">✕</button>
+      </div>
+
+      <div style="text-align: center; padding: 20px 10px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">💰</div>
+        <div style="font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 6px;" id="co-result-title">오늘 번 돈이 기록되었어요!</div>
+        <div style="font-size: 32px; font-weight: 900; color: #059669; margin-bottom: 16px;" id="co-result-wage">₩ 0</div>
+
+        <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 14px 16px; text-align: left; font-size: 13.5px; line-height: 1.8; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">근무지</span><strong id="co-result-wp" style="color: #1E293B;">-</strong></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">근무 시간</span><strong id="co-result-time" style="color: #1E293B;">-</strong></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">총 근무 시간</span><strong id="co-result-hours" style="color: #1E293B;">-</strong></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">정산 예정일</span><strong id="co-result-payday" style="color: #4F46E5;">-</strong></div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-submit" style="flex: 2; margin-top: 0; background: #4F46E5;" onclick="closeModal('modal-clock-out-result')">
+            확인 (기록 유지)
+          </button>
+          <button class="btn-cancel-modal" id="btn-delete-clock-out-shift" style="flex: 1; background: #FEE2E2; border-color: #FCA5A5; color: #DC2626;" onclick="deleteJustClockedShift()">
+            기록 삭제
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1395,6 +1579,9 @@
           <button class="chip" onclick="filterHome('daily', this)">일일 / 단기 알바</button>
         </div>
 
+        <!-- Real-Time Working Clock Banner (if clocked in) -->
+        ${renderActiveClockBanner()}
+
         <!-- Executive Summary Card with Pending/Settled Tracking -->
         <div class="summary-card">
           <div class="summary-header">
@@ -1460,7 +1647,10 @@
               </div>
 
               <div class="wp-card-actions">
-                <button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>
+                ${activeClock && activeClock.workplaceId === wp.id ?
+  `<button class="btn-action btn-clock btn-clocked-in" onclick="clockOut()">🛑 퇴근하기</button>` :
+  `<button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>`
+}
                 <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무 등록</button>
                 <button class="btn-action btn-del" onclick="deleteWorkplace('${wp.id}')" title="근무지 삭제">삭제</button>
               </div>
@@ -2224,11 +2414,189 @@ ${icsEvents}END:VCALENDAR`;
       if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
     }
 
+    let activeClock = JSON.parse(localStorage.getItem('albalog_clock_in')) || null;
+    let clockTimerInterval = null;
+    let justClockedShiftId = null;
+
+    function renderActiveClockBanner() {
+      if (!activeClock) return '';
+      const wp = workplaces.find(w => w.id === activeClock.workplaceId);
+      if (!wp) return '';
+
+      const now = Date.now();
+      const elapsedSec = Math.max(0, Math.floor((now - activeClock.startTime) / 1000));
+      const earnedWage = Math.floor((elapsedSec / 3600) * wp.rate);
+
+      const hrs = Math.floor(elapsedSec / 3600);
+      const mins = Math.floor((elapsedSec % 3600) / 60);
+      const secs = elapsedSec % 60;
+      const durationStr = `${hrs > 0 ? hrs + '시간 ' : ''}${mins}분 ${String(secs).padStart(2, '0')}초`;
+
+      const startDate = new Date(activeClock.startTime);
+      const clockInTimeStr = `${String(startDate.getHours()).padStart(2,'0')}:${String(startDate.getMinutes()).padStart(2,'0')}`;
+
+      return `
+        <div class="active-clock-banner">
+          <div class="clock-banner-header">
+            <div class="clock-live-badge">
+              <span class="live-pulse-dot"></span>
+              <span>[${wp.name}] 실시간 근무 중</span>
+            </div>
+            <span class="clock-banner-time-start">${clockInTimeStr} 출근</span>
+          </div>
+          <div class="clock-money-row">
+            <div class="clock-money-label">현재까지 번 돈 (실시간 정산 중)</div>
+            <div class="clock-money-value">
+              <span class="currency">₩</span>
+              <span id="live-clock-money">${earnedWage.toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="clock-stats-row">
+            <div>⏱️ 경과: <strong id="live-clock-time">${durationStr}</strong></div>
+            <div>시급: <strong>${wp.rate.toLocaleString()}원</strong></div>
+          </div>
+          <div class="clock-btn-row">
+            <button class="btn-clock-out" onclick="clockOut()">🛑 지금 퇴근하고 오늘 번 돈 기록하기</button>
+            <button class="btn-clock-cancel" onclick="cancelClockIn()">취소</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function startClockTicker() {
+      if (clockTimerInterval) clearInterval(clockTimerInterval);
+      if (!activeClock) return;
+
+      clockTimerInterval = setInterval(() => {
+        if (!activeClock) {
+          clearInterval(clockTimerInterval);
+          return;
+        }
+        const wp = workplaces.find(w => w.id === activeClock.workplaceId);
+        if (!wp) return;
+
+        const now = Date.now();
+        const elapsedSec = Math.max(0, Math.floor((now - activeClock.startTime) / 1000));
+        const earnedWage = Math.floor((elapsedSec / 3600) * wp.rate);
+
+        const hrs = Math.floor(elapsedSec / 3600);
+        const mins = Math.floor((elapsedSec % 3600) / 60);
+        const secs = elapsedSec % 60;
+        const durationStr = `${hrs > 0 ? hrs + '시간 ' : ''}${mins}분 ${String(secs).padStart(2, '0')}초`;
+
+        const moneyEl = document.getElementById('live-clock-money');
+        const timeEl = document.getElementById('live-clock-time');
+        if (moneyEl) moneyEl.innerText = earnedWage.toLocaleString();
+        if (timeEl) timeEl.innerText = durationStr;
+      }, 1000);
+    }
+
     function quickClockIn(wpId) {
+      if (activeClock) {
+        const currentWp = workplaces.find(w => w.id === activeClock.workplaceId);
+        if (confirm(`이미 [${currentWp ? currentWp.name : '알바'}]에 출근 중이에요! 먼저 퇴근 처리하시겠어요?`)) {
+          clockOut();
+        }
+        return;
+      }
+
       const wp = workplaces.find(w => w.id === wpId);
-      const now = new Date();
+      activeClock = {
+        workplaceId: wpId,
+        startTime: Date.now()
+      };
+      localStorage.setItem('albalog_clock_in', JSON.stringify(activeClock));
+
+      const now = new Date(activeClock.startTime);
       const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      showToast(`⚡ ${wp.name} 출근 확인! (${timeStr})`);
+      showToast(`⚡ [${wp.name}] 출근 완료! (${timeStr}) 실시간 정산이 시작되었어요.`);
+
+      startClockTicker();
+      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+    }
+
+    function cancelClockIn() {
+      if (confirm("출근을 취소하시겠어요? (근무 기록이 남지 않습니다)")) {
+        localStorage.removeItem('albalog_clock_in');
+        activeClock = null;
+        if (clockTimerInterval) clearInterval(clockTimerInterval);
+        showToast("출근이 취소되었어요.");
+        if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+      }
+    }
+
+    function clockOut() {
+      if (!activeClock) return;
+      const wp = workplaces.find(w => w.id === activeClock.workplaceId) || { name: '알바', rate: 10320, id: activeClock.workplaceId };
+      const endTime = Date.now();
+      const elapsedSec = Math.max(0, Math.floor((endTime - activeClock.startTime) / 1000));
+      const hours = Math.max(0.1, Math.round((elapsedSec / 3600) * 10) / 10);
+      const earnedWage = Math.round(hours * wp.rate);
+
+      const startDate = new Date(activeClock.startTime);
+      const endDate = new Date(endTime);
+
+      const startStr = `${String(startDate.getHours()).padStart(2,'0')}:${String(startDate.getMinutes()).padStart(2,'0')}`;
+      const endStr = `${String(endDate.getHours()).padStart(2,'0')}:${String(endDate.getMinutes()).padStart(2,'0')}`;
+      const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
+
+      let payday = dateStr;
+      if (wp.payType === 'monthly_15') {
+        payday = '2026-12-15';
+      } else if (wp.payType === 'monthly_10') {
+        payday = '2026-12-10';
+      }
+
+      const newShift = {
+        id: "s_" + Date.now(),
+        workplaceId: wp.id,
+        date: dateStr,
+        start: startStr,
+        end: endStr,
+        hours: hours,
+        grossWage: earnedWage,
+        taxType: 'none',
+        taxAmount: 0,
+        wage: earnedWage,
+        payday: payday,
+        memo: `⚡ 실시간 출퇴근 자동 기록 (${startStr} ~ ${endStr})`,
+        isSettled: false
+      };
+
+      shifts.unshift(newShift);
+      justClockedShiftId = newShift.id;
+
+      localStorage.removeItem('albalog_clock_in');
+      activeClock = null;
+      if (clockTimerInterval) clearInterval(clockTimerInterval);
+      saveState();
+
+      showClockOutResultModal(newShift, wp);
+
+      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+      if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+      if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+    }
+
+    function showClockOutResultModal(shift, wp) {
+      document.getElementById('co-result-wage').innerText = `₩ ${shift.wage.toLocaleString()}`;
+      document.getElementById('co-result-wp').innerText = wp.name;
+      document.getElementById('co-result-time').innerText = `${shift.start} ~ ${shift.end}`;
+      document.getElementById('co-result-hours').innerText = `${shift.hours}시간 (${wp.rate.toLocaleString()}원/시)`;
+      document.getElementById('co-result-payday').innerText = shift.payday;
+      document.getElementById('modal-clock-out-result').classList.add('active');
+    }
+
+    function deleteJustClockedShift() {
+      if (justClockedShiftId) {
+        shifts = shifts.filter(s => s.id !== justClockedShiftId);
+        saveState();
+        closeModal('modal-clock-out-result');
+        showToast("방금 기록된 근무가 삭제되었습니다.");
+        if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+        if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+        if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+      }
     }
 
     function closeModal(id) {
