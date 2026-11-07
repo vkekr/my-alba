@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.7.0</span>
+            <span class="brand-tag">v2.8.0</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1721,7 +1721,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.7.0)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.0)
         </p>
       </div>
 
@@ -1730,7 +1730,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.7.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -1876,6 +1876,7 @@
       if (tab === 'home') renderHome(main);
       else if (tab === 'cal') renderCalendar(main);
       else if (tab === 'gigs') renderGigs(main);
+      else if (tab === 'wp-detail') renderWorkplaceDetail(main, currentDetailWpId);
     }
 
     // --- HOME VIEW ---
@@ -1887,6 +1888,9 @@
       const wpTotals = {};
       workplaces.forEach(w => wpTotals[w.id] = 0);
 
+      let regWage = 0, regSettled = 0, regPending = 0, regPendingCount = 0;
+      let dailyWage = 0, dailySettled = 0, dailyPending = 0, dailyPendingCount = 0;
+
       shifts.forEach(s => {
         const [y, m] = s.date.split('-');
         if (parseInt(y) === selectedYear && parseInt(m) === selectedMonth) {
@@ -1894,20 +1898,43 @@
           if (wpTotals[s.workplaceId] !== undefined) {
             wpTotals[s.workplaceId] += s.wage;
           }
+          const wp = workplaces.find(w => w.id === s.workplaceId);
+          const isReg = wp && wp.type === 'regular';
+
           if (s.isSettled) {
             settledWage += s.wage;
+            if (isReg) regSettled += s.wage;
+            else dailySettled += s.wage;
           } else {
             pendingWage += s.wage;
             pendingCount++;
+            if (isReg) {
+              regPending += s.wage;
+              regPendingCount++;
+            } else {
+              dailyPending += s.wage;
+              dailyPendingCount++;
+            }
           }
+
+          if (isReg) regWage += s.wage;
+          else dailyWage += s.wage;
         }
       });
 
+      window.homeIncomeStats = {
+        all: { label: `2026년 ${selectedMonth}월 총 예상 수입`, wage: totalWage, pendingWage, pendingCount, settledWage },
+        regular: { label: `2026년 ${selectedMonth}월 정기 알바 수입`, wage: regWage, pendingWage: regPending, pendingCount: regPendingCount, settledWage: regSettled },
+        daily: { label: `2026년 ${selectedMonth}월 일일 / 단기 알바 수입`, wage: dailyWage, pendingWage: dailyPending, pendingCount: dailyPendingCount, settledWage: dailySettled }
+      };
+
+      const activeStats = window.homeIncomeStats[currentHomeFilter] || window.homeIncomeStats.all;
+
       let html = `
         <div class="filter-chips">
-          <button class="chip active" onclick="filterHome('all', this)">전체 (${workplaces.length})</button>
-          <button class="chip" onclick="filterHome('regular', this)">정기 알바</button>
-          <button class="chip" onclick="filterHome('daily', this)">일일 / 단기 알바</button>
+          <button id="filter-chip-all" class="chip ${currentHomeFilter === 'all' ? 'active' : ''}" onclick="filterHome('all', this)">전체 (${workplaces.length})</button>
+          <button id="filter-chip-regular" class="chip ${currentHomeFilter === 'regular' ? 'active' : ''}" onclick="filterHome('regular', this)">정기 알바</button>
+          <button id="filter-chip-daily" class="chip ${currentHomeFilter === 'daily' ? 'active' : ''}" onclick="filterHome('daily', this)">일일 / 단기 알바</button>
         </div>
 
         <!-- Real-Time Working Clock Banner (if clocked in) -->
@@ -1916,21 +1943,21 @@
         <!-- Executive Summary Card with Pending/Settled Tracking -->
         <div class="summary-card">
           <div class="summary-header">
-            <span class="summary-label">2026년 11월 총 예상 수입</span>
+            <span class="summary-label" id="summary-income-label">${activeStats.label}</span>
             <span class="summary-sync-badge" onclick="exportMonthToAppleCalendar()">
               📅 애플 캘린더 동기화
             </span>
           </div>
-          <div class="summary-main-val">₩ ${totalWage.toLocaleString()}</div>
+          <div class="summary-main-val" id="summary-income-val">₩ ${activeStats.wage.toLocaleString()}</div>
 
           <div class="settlement-grid">
             <div class="settle-item">
-              <div class="settle-label">⏳ 입금 대기 (${pendingCount}건)</div>
-              <div class="settle-val pending">₩ ${pendingWage.toLocaleString()}</div>
+              <div class="settle-label" id="summary-pending-label">⏳ 입금 대기 (${activeStats.pendingCount}건)</div>
+              <div class="settle-val pending" id="summary-pending-val">₩ ${activeStats.pendingWage.toLocaleString()}</div>
             </div>
             <div class="settle-item">
               <div class="settle-label">✅ 입금 완료</div>
-              <div class="settle-val done">₩ ${settledWage.toLocaleString()}</div>
+              <div class="settle-val done" id="summary-settled-val">₩ ${activeStats.settledWage.toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -1951,7 +1978,7 @@
           const amount = wpTotals[wp.id] || 0;
           const isDaily = wp.type === 'daily';
           html += `
-            <div class="wp-card" data-type="${wp.type}">
+            <div class="wp-card" data-type="${wp.type}" onclick="handleWorkplaceCardClick(event, '${wp.id}')" style="cursor: pointer; position: relative;">
               <div class="wp-card-top">
                 <div class="wp-title-wrap">
                   <div class="wp-color-dot" style="background: ${wp.color}"></div>
@@ -1961,6 +1988,7 @@
                   <span class="wp-type-badge ${isDaily ? 'badge-daily' : 'badge-regular'}">
                     ${isDaily ? '단기·일일' : '정기'}
                   </span>
+                  <span style="font-size: 11.5px; font-weight: 700; color: #6366F1; background: #EEF2FF; padding: 3px 8px; border-radius: 6px;">상세 ›</span>
                 </div>
               </div>
 
@@ -2031,8 +2059,32 @@
     }
 
     function filterHome(type, btn) {
+      currentHomeFilter = type;
       document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        const targetBtn = document.getElementById(`filter-chip-${type}`);
+        if (targetBtn) targetBtn.classList.add('active');
+      }
+
+      // Update Top Summary Banner to reflect selected filter
+      const stats = window.homeIncomeStats ? window.homeIncomeStats[type] : null;
+      if (stats) {
+        const lbl = document.getElementById('summary-income-label');
+        const val = document.getElementById('summary-income-val');
+        const pLbl = document.getElementById('summary-pending-label');
+        const pVal = document.getElementById('summary-pending-val');
+        const sVal = document.getElementById('summary-settled-val');
+
+        if (lbl) lbl.innerText = stats.label;
+        if (val) val.innerText = `₩ ${stats.wage.toLocaleString()}`;
+        if (pLbl) pLbl.innerText = `⏳ 입금 대기 (${stats.pendingCount}건)`;
+        if (pVal) pVal.innerText = `₩ ${stats.pendingWage.toLocaleString()}`;
+        if (sVal) sVal.innerText = `₩ ${stats.settledWage.toLocaleString()}`;
+      }
+
+      // Update Card Visibility
       document.querySelectorAll('.wp-card').forEach(card => {
         if (type === 'all' || card.getAttribute('data-type') === type) {
           card.style.display = 'block';
@@ -2055,6 +2107,270 @@
         if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
       }
     }
+
+
+    // --- WORKPLACE DETAIL VIEW (하우머치 스타일 근무지별 상세 내역) ---
+    function handleWorkplaceCardClick(e, wpId) {
+      if (e.target.closest('.wp-card-actions') || e.target.closest('.btn-tax-quick') || e.target.closest('.btn-action')) {
+        return;
+      }
+      openWorkplaceDetail(wpId);
+    }
+
+    function openWorkplaceDetail(wpId) {
+      currentDetailWpId = wpId;
+      detailSubTab = "shifts";
+      detailEditMode = false;
+      switchTab('wp-detail');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeDetailMonth(delta) {
+      selectedMonth += delta;
+      if (selectedMonth < 1) {
+        selectedMonth = 12;
+        selectedYear--;
+      } else if (selectedMonth > 12) {
+        selectedMonth = 1;
+        selectedYear++;
+      }
+      renderWorkplaceDetail(document.getElementById('main-view'), currentDetailWpId);
+    }
+
+    function setDetailSubTab(tab) {
+      detailSubTab = tab;
+      renderWorkplaceDetail(document.getElementById('main-view'), currentDetailWpId);
+    }
+
+    function toggleDetailEditMode() {
+      detailEditMode = !detailEditMode;
+      renderWorkplaceDetail(document.getElementById('main-view'), currentDetailWpId);
+    }
+
+    function renderWorkplaceDetail(container, wpId) {
+      const wp = workplaces.find(w => w.id === wpId) || workplaces[0];
+      if (!wp) {
+        switchTab('home');
+        return;
+      }
+
+      // Filter shifts for this workplace & selected month
+      const wpShifts = shifts.filter(s => {
+        const [y, m] = s.date.split('-');
+        return s.workplaceId === wp.id && parseInt(y) === selectedYear && parseInt(m) === selectedMonth;
+      }).sort((a, b) => a.date.localeCompare(b.date));
+
+      let totalGross = 0;
+      let totalNet = 0;
+      let totalTax = 0;
+      let totalHours = 0;
+
+      wpShifts.forEach(s => {
+        const gross = s.grossWage || s.wage;
+        totalGross += gross;
+        totalNet += s.wage;
+        totalTax += (s.taxAmount || 0);
+        totalHours += (s.hours || 0);
+      });
+
+      const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+      const lastDateObj = new Date(selectedYear, selectedMonth - 1, lastDay);
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const lastDow = dayNames[lastDateObj.getDay()];
+
+      const monthStr = String(selectedMonth).padStart(2, '0');
+      const yearShort = String(selectedYear).slice(2);
+
+      let h = `
+        <div class="wp-detail-view" style="padding-bottom: 90px; position: relative;">
+          <!-- 1. Top Navigation Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0 16px 0;">
+            <button type="button" onclick="switchTab('home')" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #1E293B; display: flex; align-items: center; padding: 6px;">
+              ←
+            </button>
+            <div style="font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.3px;">
+              ${wp.name}
+            </div>
+            <button type="button" onclick="openEditWorkplaceModal('${wp.id}')" style="background: none; border: none; font-size: 13.5px; font-weight: 700; color: #64748B; cursor: pointer; padding: 6px;">
+              근무지 수정
+            </button>
+          </div>
+
+          <!-- 2. Top Salary Banner (하우머치 스타일 파스텔 블루 카드) -->
+          <div style="background: linear-gradient(135deg, #8EA4CE 0%, #7690C1 100%); border-radius: 18px; padding: 22px 24px; color: #FFFFFF; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 18px rgba(118, 144, 193, 0.3); margin-bottom: 18px;">
+            <div>
+              <div style="font-size: 12.5px; font-weight: 600; opacity: 0.9; margin-bottom: 4px;">
+                ${wp.type === 'daily' ? '단기알바 총 수입' : '이번달 총 급여 (실수령)'}
+              </div>
+              <div style="font-size: 30px; font-weight: 900; letter-spacing: -0.5px;">
+                ${totalNet.toLocaleString()}원
+              </div>
+              ${totalTax > 0 ? `<div style="font-size: 11.5px; opacity: 0.85; margin-top: 4px;">(세전 ${totalGross.toLocaleString()}원 - 세금 ${totalTax.toLocaleString()}원)</div>` : ''}
+            </div>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #FBBF24; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #78350F; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+              ₩
+            </div>
+          </div>
+
+          <!-- 3. Date Range Selector -->
+          <div style="display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 18px;">
+            <button type="button" onclick="changeDetailMonth(-1)" style="background: none; border: none; font-size: 20px; font-weight: 700; color: #64748B; cursor: pointer; padding: 4px 8px;">
+              ‹
+            </button>
+            <div style="font-size: 15px; font-weight: 800; color: #334155; letter-spacing: -0.2px;">
+              ${yearShort}.${monthStr}.01 ~ ${monthStr}.${lastDay}
+            </div>
+            <button type="button" onclick="changeDetailMonth(1)" style="background: none; border: none; font-size: 20px; font-weight: 700; color: #64748B; cursor: pointer; padding: 4px 8px;">
+              ›
+            </button>
+          </div>
+
+          <!-- 4. Sub Tabs (근무내역 / 급여명세서) -->
+          <div style="display: flex; border-bottom: 1.5px solid #E2E8F0; margin-bottom: 20px;">
+            <button type="button" onclick="setDetailSubTab('shifts')" style="flex: 1; padding: 12px 0; font-size: 15px; font-weight: 800; border: none; background: none; cursor: pointer; color: ${detailSubTab === 'shifts' ? '#0F172A' : '#94A3B8'}; border-bottom: ${detailSubTab === 'shifts' ? '2.5px solid #0F172A' : 'none'}; margin-bottom: -1.5px;">
+              근무내역
+            </button>
+            <button type="button" onclick="setDetailSubTab('payslip')" style="flex: 1; padding: 12px 0; font-size: 15px; font-weight: 800; border: none; background: none; cursor: pointer; color: ${detailSubTab === 'payslip' ? '#0F172A' : '#94A3B8'}; border-bottom: ${detailSubTab === 'payslip' ? '2.5px solid #0F172A' : 'none'}; margin-bottom: -1.5px;">
+              급여명세서
+            </button>
+          </div>
+      `;
+
+      if (detailSubTab === 'shifts') {
+        h += `
+          <!-- Header: 나의 근무 & 편집 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="font-size: 16px; font-weight: 800; color: #0F172A;">
+              나의 근무 <span style="font-size: 13px; font-weight: 600; color: #64748B;">(${wpShifts.length}일)</span>
+            </div>
+            <button type="button" onclick="toggleDetailEditMode()" style="background: ${detailEditMode ? '#EEF2FF' : '#F8FAFC'}; border: 1.5px solid ${detailEditMode ? '#818CF8' : '#E2E8F0'}; border-radius: 8px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; color: ${detailEditMode ? '#4F46E5' : '#475569'}; cursor: pointer;">
+              ${detailEditMode ? '✓ 완료' : '✏️ 편집'}
+            </button>
+          </div>
+
+          <!-- Shift List -->
+          <div class="detail-shift-list" style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        `;
+
+        if (wpShifts.length === 0) {
+          h += `
+            <div style="padding: 40px 20px; text-align: center; color: #94A3B8;">
+              <div style="font-size: 28px; margin-bottom: 8px;">🗓️</div>
+              <div style="font-size: 14px; font-weight: 700; color: #475569;">이번 달 등록된 근무 기록이 없습니다</div>
+              <div style="font-size: 12px; margin-top: 4px;">우측 하단의 ＋ 버튼을 눌러 근무를 추가해 보세요!</div>
+            </div>
+          `;
+        } else {
+          wpShifts.forEach((s, idx) => {
+            const [y, m, d] = s.date.split('-');
+            const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            const dow = dayNames[dObj.getDay()];
+            const isLast = idx === wpShifts.length - 1 && totalTax === 0;
+
+            h += `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: ${isLast ? 'none' : '1px solid #F1F5F9'};">
+                <div>
+                  <div style="font-size: 15px; font-weight: 800; color: #1E293B;">
+                    ${parseInt(m)}월 ${parseInt(d)}일 (${dow})
+                  </div>
+                  <div style="font-size: 13px; color: #64748B; margin-top: 3px; font-weight: 500;">
+                    ${s.start || '09:00'}~${s.end || '14:00'} ${s.hours ? `(${s.hours}시간)` : ''}
+                    ${s.memo ? `<span style="color: #94A3B8;"> · ${s.memo}</span>` : ''}
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="font-size: 16px; font-weight: 800; color: #0F172A; letter-spacing: -0.2px;">
+                    ${s.wage.toLocaleString()}원
+                  </div>
+                  ${detailEditMode ? `
+                    <div style="display: flex; gap: 4px;">
+                      <button type="button" onclick="openEditShiftModal('${s.id}')" style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 700; color: #4F46E5; cursor: pointer;">수정</button>
+                      <button type="button" onclick="deleteShift('${s.id}')" style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 700; color: #EF4444; cursor: pointer;">삭제</button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          });
+
+          // 3.3% or 4대보험 tax row at the bottom (하우머치 동일 스타일!)
+          if (totalTax > 0) {
+            const taxName = wp.defaultTaxType === 'four_ins' ? '4대보험 (약 9.4%)' : '세금 3.3%';
+            h += `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #FFF5F5;">
+                <div>
+                  <div style="font-size: 15px; font-weight: 800; color: #1E293B;">
+                    ${parseInt(selectedMonth)}월 ${lastDay}일 (${lastDow})
+                  </div>
+                  <div style="font-size: 12.5px; color: #EF4444; font-weight: 700; margin-top: 3px;">
+                    ${taxName}
+                  </div>
+                </div>
+                <div style="font-size: 16px; font-weight: 800; color: #EF4444; letter-spacing: -0.2px;">
+                  -${totalTax.toLocaleString()}원
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        h += `</div>`; // end detail-shift-list
+
+      } else {
+        // --- PAYSLIP VIEW (급여명세서) ---
+        h += `
+          <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; padding: 22px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="font-size: 17px; font-weight: 800; color: #0F172A; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid #F1F5F9;">
+              📄 ${selectedYear}년 ${selectedMonth}월 급여명세서
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+              <span style="color: #64748B; font-weight: 600;">기본 시급</span>
+              <span style="color: #1E293B; font-weight: 700;">${wp.rate.toLocaleString()}원</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+              <span style="color: #64748B; font-weight: 600;">총 근무 일수 / 시간</span>
+              <span style="color: #1E293B; font-weight: 700;">${wpShifts.length}일 / ${totalHours.toFixed(1)}시간</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px;">
+              <span style="color: #64748B; font-weight: 600;">총 세전 급여</span>
+              <span style="color: #0F172A; font-weight: 800;">${totalGross.toLocaleString()}원</span>
+            </div>
+
+            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+              <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 8px;">공제 내역</div>
+              <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                <span style="color: #64748B;">소득세 및 주민세 (3.3%)</span>
+                <span style="color: #EF4444; font-weight: 700;">-${totalTax.toLocaleString()}원</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 2px dashed #E2E8F0;">
+              <span style="font-size: 15px; font-weight: 800; color: #0F172A;">최종 실수령액</span>
+              <span style="font-size: 22px; font-weight: 900; color: #4F46E5;">${totalNet.toLocaleString()}원</span>
+            </div>
+
+            <div style="margin-top: 18px; padding: 12px; background: #EEF2FF; border-radius: 10px; font-size: 12.5px; color: #4338CA; font-weight: 600;">
+              💳 정산 예정일: <strong>${wp.payTypeLabel || '익월 15일'}</strong>
+            </div>
+          </div>
+        `;
+      }
+
+      // Floating Action Button (하우머치 스타일 파스텔 블루 원형 ＋ 버튼)
+      h += `
+          <button type="button" onclick="openAddShiftModal('${wp.id}')" title="새 근무 추가" style="position: fixed; bottom: 84px; right: calc(50% - 190px + 18px); width: 54px; height: 54px; border-radius: 50%; background: #9BB4DE; color: #FFFFFF; font-size: 28px; font-weight: 300; border: none; box-shadow: 0 6px 18px rgba(155, 180, 222, 0.45); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: transform 0.15s ease;">
+            ＋
+          </button>
+        </div>
+      `;
+
+      container.innerHTML = h;
+    }
+
 
     // --- CALENDAR VIEW (STRICT FIXED HEIGHT) ---
 
@@ -3415,7 +3731,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.7.0";
+    const CURRENT_APP_VERSION = "2.8.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
