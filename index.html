@@ -1359,12 +1359,52 @@
           <input type="text" class="form-input" id="shift-memo" placeholder="예: 미들 파트, 행사 지원 등">
         </div>
 
-        <!-- 8. 애플 캘린더 동기화 옵션 -->
-        <div style="background: #FFFFFF; padding: 12px 14px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid #E2E8F0;">
-          <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 700; color: #1E293B; cursor: pointer;">
-            <input type="checkbox" id="shift-sync-apple" checked style="width: 18px; height: 18px; accent-color: #4F46E5;">
-            <span>📅 저장 즉시 애플 캘린더에 일정 추가 (.ics)</span>
+        <!-- 8. 애플 캘린더 동기화 & 옵션 -->
+        <div style="background: #FFFFFF; padding: 14px 16px; border-radius: 16px; margin-bottom: 16px; border: 1.5px solid #E2E8F0; box-shadow: 0 1px 4px rgba(0,0,0,0.03);">
+          <label style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; font-weight: 700; color: #1E293B; cursor: pointer;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">📅</span> 애플 캘린더 연동 (.ics)
+            </span>
+            <input type="checkbox" id="shift-sync-apple" checked onchange="toggleCalSyncOptions(this.checked)" style="width: 20px; height: 20px; accent-color: #4F46E5; cursor: pointer;">
           </label>
+
+          <!-- 세부 옵션: 저장할 캘린더 선택 & 출근 알림 설정 -->
+          <div id="cal-sync-sub-options" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #E2E8F0; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 14px;">🏷️</span>
+                <span style="font-size: 13px; font-weight: 700; color: #475569;">저장할 캘린더</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <select id="shift-cal-select" onchange="handleCalSelectChange(this.value)" style="padding: 7px 10px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 10px; background: #F8FAFC; color: #1E293B;">
+                  <option value="알바" selected>🟢 알바</option>
+                  <option value="Calendar">🔵 Calendar (기본)</option>
+                  <option value="개인">🟣 개인</option>
+                  <option value="직접입력">✏️ 직접 입력</option>
+                </select>
+                <input type="text" id="shift-cal-custom" placeholder="캘린더명" style="display: none; width: 95px; padding: 7px 10px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 10px; color: #1E293B;">
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 14px;">🔔</span>
+                <span style="font-size: 13px; font-weight: 700; color: #475569;">출근 전 알림</span>
+              </div>
+              <select id="shift-cal-alarm" onchange="saveCalPreference()" style="padding: 7px 10px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 10px; background: #F8FAFC; color: #1E293B;">
+                <option value="none">알림 없음</option>
+                <option value="15">15분 전</option>
+                <option value="30" selected>30분 전</option>
+                <option value="60">1시간 전</option>
+                <option value="120">2시간 전</option>
+                <option value="1440">1일 전 (전날 저녁)</option>
+              </select>
+            </div>
+
+            <div style="font-size: 11px; color: #64748B; line-height: 1.45; background: #F8FAFC; padding: 8px 12px; border-radius: 10px; border: 1px solid #E2E8F0;">
+              💡 캘린더를 <strong>'알바'</strong>로 선택하면 아이폰 캘린더 앱에 알바 전용 일정으로 쏙 들어가요!
+            </div>
+          </div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -2302,49 +2342,37 @@
 
     function exportMultipleShiftsToAppleCalendar(shiftList, wp) {
       if (!shiftList || shiftList.length === 0) return;
-      let icsEvents = '';
-      const nowStr = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      const calName = getSelectedCalendarName();
+      const alarmMins = getSelectedAlarmMins();
+      saveCalPreference();
 
+      const events = [];
       shiftList.forEach(s => {
-        const [sy, sm, sd] = s.date.split('-');
-        const [sh, smin] = s.start.split(':');
-        const [eh, emin] = s.end.split(':');
+        events.push({
+          id: s.id,
+          date: s.date,
+          start: s.start || '09:00',
+          end: s.end || '16:00',
+          title: `${wp.name} 근무 (${s.hours}h · ${s.wage.toLocaleString()}원)`,
+          location: wp.location || wp.name,
+          description: `근무시간: ${s.hours}시간\n예상 실수령액: ${s.wage.toLocaleString()}원\n시급: ${wp.rate.toLocaleString()}원\n입금 예정일: ${s.payday}\n메모: ${s.memo || '없음'}`
+        });
 
-        const dtstart = `${sy}${sm}${sd}T${sh}${smin}00`;
-        const dtend = `${sy}${sm}${sd}T${eh}${emin}00`;
-
-        icsEvents += `BEGIN:VEVENT
-UID:${s.id}@albalog.app
-DTSTAMP:${nowStr}
-DTSTART;TZID=Asia/Seoul:${dtstart}
-DTEND;TZID=Asia/Seoul:${dtend}
-SUMMARY:[알바] ${wp.name} 근무 (${s.hours}시간)
-DESCRIPTION:시급: ${wp.rate.toLocaleString()}원
-예상 실수령액: ${s.wage.toLocaleString()}원
-입금 예정일: ${s.payday}
-메모: ${s.memo || '없음'}
-LOCATION:${wp.location || ''}
-STATUS:CONFIRMED
-END:VEVENT
-`;
+        if (s.payday && s.payday !== s.date) {
+          events.push({
+            id: s.id + "_payday",
+            date: s.payday,
+            start: "10:00",
+            end: "10:30",
+            title: `💰 [입금일] ${wp.name} (${s.wage.toLocaleString()}원)`,
+            location: "내 계좌",
+            description: `${s.date} 근무분 알바비 ${s.wage.toLocaleString()}원 입금 확인 필요`
+          });
+        }
       });
 
-      const icsData = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//AlbaLog//Smart Shift Planner//KO
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-X-WR-CALNAME:알바로그 근무 일정
-X-WR-TIMEZONE:Asia/Seoul
-${icsEvents}END:VCALENDAR`;
-
-      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.setAttribute('download', `albalog_shifts_${Date.now()}.ics`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const icsData = generateIcs(events, calName, alarmMins);
+      downloadIcsFile(`${shiftList[0].date}_${wp.name}_${calName}.ics`, icsData);
     }
 
     function openDateDetail(dateStr) {
@@ -2629,6 +2657,71 @@ ${icsEvents}END:VCALENDAR`;
       setTimeout(() => t.classList.remove('show'), 2600);
     }
 
+
+    // --- CALENDAR PREFERENCES & HELPERS ---
+    function getSelectedCalendarName() {
+      const sel = document.getElementById('shift-cal-select');
+      if (!sel) return localStorage.getItem('albalog_pref_cal_name') || '알바';
+      if (sel.value === '직접입력') {
+        const custom = document.getElementById('shift-cal-custom').value.trim();
+        return custom || '알바';
+      }
+      return sel.value;
+    }
+
+    function getSelectedAlarmMins() {
+      const sel = document.getElementById('shift-cal-alarm');
+      return sel ? sel.value : (localStorage.getItem('albalog_pref_cal_alarm') || '30');
+    }
+
+    function handleCalSelectChange(val) {
+      const custom = document.getElementById('shift-cal-custom');
+      if (val === '직접입력') {
+        custom.style.display = 'inline-block';
+        custom.focus();
+      } else {
+        custom.style.display = 'none';
+      }
+      saveCalPreference();
+    }
+
+    function saveCalPreference() {
+      const calName = getSelectedCalendarName();
+      const alarmMins = getSelectedAlarmMins();
+      localStorage.setItem('albalog_pref_cal_name', calName);
+      localStorage.setItem('albalog_pref_cal_alarm', alarmMins);
+    }
+
+    function loadCalPreference() {
+      const savedCal = localStorage.getItem('albalog_pref_cal_name') || '알바';
+      const savedAlarm = localStorage.getItem('albalog_pref_cal_alarm') || '30';
+
+      const sel = document.getElementById('shift-cal-select');
+      const custom = document.getElementById('shift-cal-custom');
+      const alarmSel = document.getElementById('shift-cal-alarm');
+
+      if (sel) {
+        if (['알바', 'Calendar', '개인'].includes(savedCal)) {
+          sel.value = savedCal;
+          if (custom) custom.style.display = 'none';
+        } else {
+          sel.value = '직접입력';
+          if (custom) {
+            custom.style.display = 'inline-block';
+            custom.value = savedCal;
+          }
+        }
+      }
+      if (alarmSel) {
+        alarmSel.value = savedAlarm;
+      }
+    }
+
+    function toggleCalSyncOptions(checked) {
+      const el = document.getElementById('cal-sync-sub-options');
+      if (el) el.style.display = checked ? 'flex' : 'none';
+    }
+
     // --- APPLE CALENDAR ENGINE ---
     function formatIcsDate(dateStr, timeStr) {
       const [y, m, d] = dateStr.split('-');
@@ -2636,28 +2729,53 @@ ${icsEvents}END:VCALENDAR`;
       return `${y}${m}${d}T${hh}${mm}00`;
     }
 
-    function generateIcs(eventList) {
+    function generateIcs(eventList, calName, alarmMins) {
+      const targetCal = calName || getSelectedCalendarName();
+      const targetAlarm = (alarmMins !== undefined) ? alarmMins : getSelectedAlarmMins();
+      const nowStr = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
       let ics = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//AlbaLog//AppCalendar//KO",
+        "PRODID:-//AlbaLog//Smart Shift Planner//KO",
         "CALSCALE:GREGORIAN",
-        "METHOD:PUBLISH"
+        "METHOD:PUBLISH",
+        `X-WR-CALNAME:${targetCal}`,
+        `X-WR-CALDESC:알바로그 ${targetCal} 일정`,
+        "X-WR-TIMEZONE:Asia/Seoul"
       ];
 
       eventList.forEach(ev => {
+        const startStr = formatIcsDate(ev.date, ev.start);
+        const endStr = formatIcsDate(ev.date, ev.end);
+        const summary = ev.title.startsWith('[') ? ev.title : `[${targetCal}] ${ev.title}`;
+
         ics.push(
           "BEGIN:VEVENT",
           `UID:${ev.id}@albalog.app`,
-          `DTSTAMP:${formatIcsDate("2026-11-07", "00:00")}Z`,
-          `DTSTART:${formatIcsDate(ev.date, ev.start)}`,
-          `DTEND:${formatIcsDate(ev.date, ev.end)}`,
-          `SUMMARY:[알바로그] ${ev.title}`,
-          `LOCATION:${ev.location || '근무 장소'}`,
+          `DTSTAMP:${nowStr}`,
+          `DTSTART;TZID=Asia/Seoul:${startStr}`,
+          `DTEND;TZID=Asia/Seoul:${endStr}`,
+          `SUMMARY:${summary}`,
+          `LOCATION:${ev.location || ''}`,
           `DESCRIPTION:${ev.description || ''}`,
-          "STATUS:CONFIRMED",
-          "END:VEVENT"
+          `CATEGORIES:${targetCal}`,
+          "STATUS:CONFIRMED"
         );
+
+        if (targetAlarm && targetAlarm !== 'none') {
+          const alarmM = parseInt(targetAlarm) || 30;
+          const alarmLabel = alarmM >= 1440 ? '1일 전' : (alarmM >= 60 ? `${alarmM/60}시간 전` : `${alarmM}분 전`);
+          ics.push(
+            "BEGIN:VALARM",
+            `TRIGGER:-PT${alarmM}M`,
+            "ACTION:DISPLAY",
+            `DESCRIPTION:[알바로그] ${ev.title} 출근 ${alarmLabel} 알림!`,
+            "END:VALARM"
+          );
+        }
+
+        ics.push("END:VEVENT");
       });
 
       ics.push("END:VCALENDAR");
