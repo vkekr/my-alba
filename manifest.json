@@ -1,7 +1,7 @@
 {
-  "name": "하우머치+ (HowMuch Plus)",
-  "short_name": "하우머치+",
-  "description": "정기·일일 알바 급여 계산 및 애플 캘린더 연동 앱",
+  "name": "알바로그 (AlbaLog)",
+  "short_name": "알바로그",
+  "description": "정기·일일 알바 급여 계산, 정산일 추적, 애플 캘린더 연동 앱",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F8FAFC",
