@@ -2530,8 +2530,22 @@ ${icsEvents}END:VCALENDAR`;
       const wp = workplaces.find(w => w.id === activeClock.workplaceId) || { name: '알바', rate: 10320, id: activeClock.workplaceId };
       const endTime = Date.now();
       const elapsedSec = Math.max(0, Math.floor((endTime - activeClock.startTime) / 1000));
-      const hours = Math.max(0.1, Math.round((elapsedSec / 3600) * 10) / 10);
-      const earnedWage = Math.round(hours * wp.rate);
+      
+      // 초/분 단위까지 1원 단위로 정확하게 계산 (1분 = 시급 / 60)
+      const earnedWage = Math.round((elapsedSec / 3600) * wp.rate);
+      const hours = Math.round((elapsedSec / 3600) * 100) / 100;
+
+      const hrs = Math.floor(elapsedSec / 3600);
+      const mins = Math.floor((elapsedSec % 3600) / 60);
+      const secs = elapsedSec % 60;
+      let durationLabel = '';
+      if (hrs > 0) {
+        durationLabel = `${hrs}시간 ${mins}분`;
+      } else if (mins > 0) {
+        durationLabel = `${mins}분`;
+      } else {
+        durationLabel = `${secs}초`;
+      }
 
       const startDate = new Date(activeClock.startTime);
       const endDate = new Date(endTime);
@@ -2554,6 +2568,7 @@ ${icsEvents}END:VCALENDAR`;
         start: startStr,
         end: endStr,
         hours: hours,
+        durationLabel: durationLabel,
         grossWage: earnedWage,
         taxType: 'none',
         taxAmount: 0,
@@ -2571,18 +2586,19 @@ ${icsEvents}END:VCALENDAR`;
       if (clockTimerInterval) clearInterval(clockTimerInterval);
       saveState();
 
-      showClockOutResultModal(newShift, wp);
+      showClockOutResultModal(newShift, wp, durationLabel);
 
       if (currentTab === 'home') renderHome(document.getElementById('main-view'));
       if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
       if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
     }
 
-    function showClockOutResultModal(shift, wp) {
+    function showClockOutResultModal(shift, wp, durationLabel) {
       document.getElementById('co-result-wage').innerText = `₩ ${shift.wage.toLocaleString()}`;
       document.getElementById('co-result-wp').innerText = wp.name;
       document.getElementById('co-result-time').innerText = `${shift.start} ~ ${shift.end}`;
-      document.getElementById('co-result-hours').innerText = `${shift.hours}시간 (${wp.rate.toLocaleString()}원/시)`;
+      const label = durationLabel || (shift.hours >= 1 ? `${shift.hours}시간` : `${Math.max(1, Math.round(shift.hours * 60))}분`);
+      document.getElementById('co-result-hours').innerText = `${label} (${wp.rate.toLocaleString()}원/시)`;
       document.getElementById('co-result-payday').innerText = shift.payday;
       document.getElementById('modal-clock-out-result').classList.add('active');
     }
