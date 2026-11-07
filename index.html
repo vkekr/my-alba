@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.8.2</span>
+            <span class="brand-tag">v2.9.0</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1612,6 +1612,11 @@
           <input type="text" class="form-input" id="edit-wp-location" placeholder="예: 강남역 1번 출구 인근, 홍대 등">
         </div>
 
+        <div class="form-group">
+          <label class="form-label">📝 근무지 메모 (복장, 준비물, 담당자 등)</label>
+          <textarea class="form-textarea" id="edit-wp-memo" rows="2" placeholder="예: 단정한 복장, 담당자 연락처: 010-XXXX-XXXX"></textarea>
+        </div>
+
         <div style="display: flex; gap: 10px; margin-top: 14px;">
           <button type="button" class="btn-cancel-modal" onclick="closeModal('modal-edit-workplace')">✕ 닫기</button>
           <button type="submit" class="btn-submit" style="flex: 2; margin-top: 0; padding: 15px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
@@ -1786,7 +1791,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.2)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.0)
         </p>
       </div>
 
@@ -1795,7 +1800,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.2</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -1869,6 +1874,16 @@
   <div class="toast" id="toast">알림 메시지</div>
 
   <script>
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     // Initial Data
     const DEFAULT_WORKPLACES = [
       {
@@ -2102,8 +2117,13 @@
                 <div class="wp-amount">₩ ${amount.toLocaleString()}</div>
                 <div class="wp-meta">
                   <span>시급 ${wp.rate.toLocaleString()}원</span>
-                  ${wp.location ? `<span>· 📍 ${wp.location}</span>` : ''}
+                  ${wp.location ? `<span>· 📍 ${escapeHtml(wp.location)}</span>` : ''}
                 </div>
+                ${wp.memo ? `
+                  <div style="font-size: 12px; color: #4F46E5; background: #EEF2FF; padding: 3px 8px; border-radius: 6px; margin-top: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    <span>📝</span> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px;">${escapeHtml(wp.memo)}</span>
+                  </div>
+                ` : ''}
               </div>
 
               <!-- 세금 상태 및 빠른 적용 배너 -->
@@ -2318,6 +2338,28 @@
             </div>
           </div>
 
+          <!-- 2.5 Workplace Memo & Info Card (지원님 요청: 근무지 상세 메모) -->
+          <div style="background: #FFFFFF; border-radius: 18px; border: 1.5px solid #E2E8F0; padding: 16px 18px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 800; color: #0F172A;">
+                <span style="font-size: 16px;">📝</span> <span>근무지 메모</span>
+              </div>
+              <button type="button" onclick="openEditWorkplaceModal('${wp.id}')" style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 7px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: #4F46E5; cursor: pointer;">
+                ✏️ 메모 수정
+              </button>
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; color: #334155; line-height: 1.6; font-weight: 500; white-space: pre-wrap; word-break: break-word;">
+              ${wp.memo ? escapeHtml(wp.memo) : '<span style="color: #94A3B8; font-style: italic; font-weight: 500;">등록된 근무지 메모가 없습니다. ✏️ 메모 수정을 눌러 복장 규정, 담당자 연락처, 업무 수칙 등을 적어둘 수 있어요!</span>'}
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #64748B; font-weight: 600;">
+              <span style="background: #F1F5F9; padding: 4px 8px; border-radius: 6px;">💵 기본시급 ${wp.rate ? wp.rate.toLocaleString() : '10,320'}원</span>
+              <span style="background: #F1F5F9; padding: 4px 8px; border-radius: 6px;">💳 ${wp.payTypeLabel || '매월 15일 입금'}</span>
+              ${wp.location ? `<span style="background: #F1F5F9; padding: 4px 8px; border-radius: 6px;">📍 ${escapeHtml(wp.location)}</span>` : ''}
+            </div>
+          </div>
+
           <!-- 3. Date Range Selector -->
           <div style="display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 18px;">
             <button type="button" onclick="changeDetailMonth(-1)" style="background: none; border: none; font-size: 20px; font-weight: 700; color: #64748B; cursor: pointer; padding: 4px 8px;">
@@ -2381,8 +2423,12 @@
                   </div>
                   <div style="font-size: 13px; color: #64748B; margin-top: 3px; font-weight: 500;">
                     ${s.start || '09:00'}~${s.end || '14:00'} ${s.hours ? `(${s.hours}시간)` : ''}
-                    ${s.memo ? `<span style="color: #94A3B8;"> · ${s.memo}</span>` : ''}
                   </div>
+                  ${s.memo ? `
+                    <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: #4338CA; background: #EEF2FF; border: 1px solid #E0E7FF; border-radius: 6px; padding: 2px 7px; margin-top: 4px; font-weight: 600;">
+                      <span>📝</span> <span>${escapeHtml(s.memo)}</span>
+                    </div>
+                  ` : ''}
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -3177,6 +3223,7 @@
       if (currentTab === 'home') renderHome(document.getElementById('main-view'));
       if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
       if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+      if (currentTab === 'wp-detail') renderWorkplaceDetail(document.getElementById('main-view'), currentDetailWpId);
     }
 
     function exportMultipleShiftsToAppleCalendar(shiftList, wp) {
@@ -3350,6 +3397,8 @@
         payDaySel.value = val;
       }
       document.getElementById('edit-wp-location').value = wp.location || '';
+      const memoEl = document.getElementById('edit-wp-memo');
+      if (memoEl) memoEl.value = wp.memo || '';
 
       const wpShifts = shifts.filter(s => s.workplaceId === wp.id);
       const hasTax33 = wpShifts.some(s => s.taxType === '3.3');
@@ -3432,6 +3481,8 @@
       const payDay = payDayEl ? payDayEl.value : '15';
       const payTypeLabel = formatPaydayLabel(payDay);
       const location = document.getElementById('edit-wp-location').value.trim();
+      const memoEl = document.getElementById('edit-wp-memo');
+      const memo = memoEl ? memoEl.value.trim() : '';
       const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
 
       wp.name = name;
@@ -3440,8 +3491,8 @@
       wp.payDay = payDay;
       wp.payType = payDay;
       wp.payTypeLabel = payTypeLabel;
-      wp.payType = payType;
       wp.location = location;
+      wp.memo = memo;
       wp.defaultTaxType = editWpTaxType;
 
       const payLabels = {
@@ -3838,7 +3889,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.8.2";
+    const CURRENT_APP_VERSION = "2.9.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
