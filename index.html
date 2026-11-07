@@ -1465,6 +1465,112 @@
   </div>
 
   
+  <!-- MODAL: EDIT SHIFT (근무 수정) -->
+  <div class="modal-overlay" id="modal-edit-shift" onclick="closeModalOnOverlay(event, 'modal-edit-shift')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">
+        <span>✏️ 근무 기록 수정</span>
+        <button class="btn-icon" onclick="closeModal('modal-edit-shift')">✕</button>
+      </div>
+
+      <form id="form-edit-shift" onsubmit="saveEditedShift(event)">
+        <input type="hidden" id="edit-shift-id">
+
+        <!-- 1. 근무지 선택 -->
+        <div class="form-group">
+          <label class="form-label">🏢 알바 근무지</label>
+          <select class="form-select" id="edit-shift-workplace-id" onchange="updateEditWageCalculation()" required></select>
+        </div>
+
+        <!-- 2. 근무 날짜 -->
+        <div class="form-group">
+          <label class="form-label">📅 근무 날짜</label>
+          <input type="date" class="form-input" id="edit-shift-date" required>
+        </div>
+
+        <!-- 3. 근무 시간 -->
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">⏰ 시작 시간</label>
+            <input type="time" class="form-input" id="edit-shift-start" onchange="updateEditWageCalculation()" required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">⏰ 종료 시간</label>
+            <input type="time" class="form-input" id="edit-shift-end" onchange="updateEditWageCalculation()" required>
+          </div>
+        </div>
+
+        <!-- 4. 휴게 시간 & 입금 예정일 -->
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">☕ 휴게 시간 (분)</label>
+            <input type="number" class="form-input" id="edit-shift-break" min="0" step="10" onchange="updateEditWageCalculation()">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">💰 입금 예정일</label>
+            <input type="date" class="form-input" id="edit-shift-payday">
+          </div>
+        </div>
+
+        <!-- 5. 세금 공제 선택 (실수령액 자동 재계산) -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">💰 세금 공제 선택</label>
+            <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">실수령액 실시간 반영</span>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+            <button type="button" class="tax-toggle-btn active" id="edit-tax-btn-none" onclick="setEditShiftTax('none')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              공제 없음
+            </button>
+            <button type="button" class="tax-toggle-btn" id="edit-tax-btn-33" onclick="setEditShiftTax('3.3')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              3.3% 사업소득
+            </button>
+            <button type="button" class="tax-toggle-btn" id="edit-tax-btn-four" onclick="setEditShiftTax('four_ins')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              4대보험 (9.4%)
+            </button>
+          </div>
+
+          <!-- 실시간 급여 계산 카드 -->
+          <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #64748B; margin-bottom: 4px;">
+              <span>총 근무 시간</span>
+              <strong id="edit-preview-hours" style="color: #1E293B;">0시간</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #64748B; margin-bottom: 4px;">
+              <span>세전 총급여</span>
+              <span id="edit-preview-gross" style="color: #1E293B; font-weight: 600;">0원</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #EF4444; margin-bottom: 8px;">
+              <span id="edit-preview-tax-label">세금 공제</span>
+              <strong id="edit-preview-tax">-0원</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+              <div style="font-size: 12.5px; color: #059669; font-weight: 800;">최종 실수령액</div>
+              <div style="font-size: 18px; font-weight: 900; color: #059669;" id="edit-preview-net">0원</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. 메모 -->
+        <div class="form-group">
+          <label class="form-label">📝 근무 메모</label>
+          <input type="text" class="form-input" id="edit-shift-memo" placeholder="예: 미들 파트, 행사 지원 등">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button type="button" class="btn-cancel-modal" onclick="closeModal('modal-edit-shift')">
+            ✕ 닫기
+          </button>
+          <button type="submit" class="btn-submit" style="flex: 2; margin-top: 0; padding: 15px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+            💾 수정 완료 저장
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: CLOCK OUT RECORDED (퇴근 정산 확인) -->
   <div class="modal-overlay" id="modal-clock-out-result" onclick="closeModalOnOverlay(event, 'modal-clock-out-result')">
     <div class="bottom-sheet">
@@ -1532,7 +1638,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.3.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.4.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2048,7 +2154,10 @@
 
               <div class="gig-btn-row">
                 <button class="btn-action btn-add" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
-                  애플 캘린더에 일정+입금일 등록
+                  캘린더 등록
+                </button>
+                <button class="btn-action btn-clock" style="color: #4F46E5; font-weight: 700;" onclick="openEditShiftModal('${s.id}')">
+                  ✏️ 수정
                 </button>
                 <button class="btn-action btn-clock" style="color: #EF4444;" onclick="deleteShift('${s.id}')">
                   삭제
@@ -2559,10 +2668,13 @@
               </div>
               ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-top: 4px;">📝 ${s.memo}</div>` : ''}
               <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button style="flex: 1; padding: 6px; font-size: 12px; font-weight: 700; background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 8px; cursor: pointer;" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
-                  📅 캘린더에 추가
+                <button style="flex: 1; padding: 7px 10px; font-size: 12.5px; font-weight: 700; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #C7D2FE; border-radius: 8px; cursor: pointer;" onclick="openEditShiftModal('${s.id}')">
+                  ✏️ 수정 (세금/시간)
                 </button>
-                <button style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: #FEE2E2; color: #EF4444; border: none; border-radius: 8px; cursor: pointer;" onclick="deleteShift('${s.id}')">
+                <button style="padding: 7px 10px; font-size: 12px; font-weight: 700; background: #F8FAFC; color: #475569; border: 1px solid #CBD5E1; border-radius: 8px; cursor: pointer;" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
+                  📅 캘린더
+                </button>
+                <button style="padding: 7px 10px; font-size: 12px; font-weight: 600; background: #FEE2E2; color: #EF4444; border: none; border-radius: 8px; cursor: pointer;" onclick="deleteShift('${s.id}')">
                   삭제
                 </button>
               </div>
@@ -2578,6 +2690,134 @@
     function openAddShiftForDate() {
       closeModal('modal-date-detail');
       openAddShiftModal(workplaces[0]?.id, selectedDateForDetail);
+    }
+
+
+    // --- EDIT SHIFT ENGINE ---
+    let editShiftTaxType = 'none';
+
+    function openEditShiftModal(shiftId) {
+      const shift = shifts.find(s => s.id === shiftId);
+      if (!shift) return;
+
+      document.getElementById('edit-shift-id').value = shift.id;
+
+      const wpSel = document.getElementById('edit-shift-workplace-id');
+      wpSel.innerHTML = workplaces.map(w => `<option value="${w.id}" ${w.id === shift.workplaceId ? 'selected' : ''}>${w.name} (시급 ₩${w.rate.toLocaleString()})</option>`).join('');
+
+      document.getElementById('edit-shift-date').value = shift.date;
+      document.getElementById('edit-shift-start').value = shift.start || '09:00';
+      document.getElementById('edit-shift-end').value = shift.end || '16:00';
+      document.getElementById('edit-shift-break').value = shift.breakMins || 0;
+      document.getElementById('edit-shift-payday').value = shift.payday || shift.date;
+      document.getElementById('edit-shift-memo').value = shift.memo || '';
+
+      const initialTax = shift.taxType || (shift.taxAmount > 0 ? '3.3' : 'none');
+      setEditShiftTax(initialTax);
+
+      closeModal('modal-date-detail');
+      openModal('modal-edit-shift');
+    }
+
+    function setEditShiftTax(type) {
+      editShiftTaxType = type;
+      document.getElementById('edit-tax-btn-none').classList.toggle('active', type === 'none');
+      document.getElementById('edit-tax-btn-33').classList.toggle('active', type === '3.3');
+      document.getElementById('edit-tax-btn-four').classList.toggle('active', type === 'four_ins');
+
+      const btnNone = document.getElementById('edit-tax-btn-none');
+      const btn33 = document.getElementById('edit-tax-btn-33');
+      const btnFour = document.getElementById('edit-tax-btn-four');
+
+      [btnNone, btn33, btnFour].forEach(b => {
+        b.style.borderColor = '#CBD5E1';
+        b.style.color = '#64748B';
+        b.style.background = '#FFFFFF';
+      });
+
+      if (type === 'none') {
+        btnNone.style.borderColor = '#4F46E5';
+        btnNone.style.color = '#4F46E5';
+        btnNone.style.background = '#EEF2FF';
+      } else if (type === '3.3') {
+        btn33.style.borderColor = '#4F46E5';
+        btn33.style.color = '#4F46E5';
+        btn33.style.background = '#EEF2FF';
+      } else if (type === 'four_ins') {
+        btnFour.style.borderColor = '#4F46E5';
+        btnFour.style.color = '#4F46E5';
+        btnFour.style.background = '#EEF2FF';
+      }
+
+      updateEditWageCalculation();
+    }
+
+    function updateEditWageCalculation() {
+      const wpId = document.getElementById('edit-shift-workplace-id').value;
+      const wp = workplaces.find(w => w.id === wpId) || { rate: 10320 };
+      const start = document.getElementById('edit-shift-start').value || '09:00';
+      const end = document.getElementById('edit-shift-end').value || '16:00';
+      const breakMins = parseInt(document.getElementById('edit-shift-break').value) || 0;
+
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      let diffMins = (eh * 60 + em) - (sh * 60 + sm) - breakMins;
+      if (diffMins < 0) diffMins += 24 * 60;
+      const hours = Math.round((diffMins / 60) * 10) / 10;
+
+      const grossWage = Math.round(hours * wp.rate);
+      let taxAmount = 0;
+      if (editShiftTaxType === '3.3') {
+        taxAmount = Math.floor(grossWage * 0.033);
+      } else if (editShiftTaxType === 'four_ins') {
+        taxAmount = Math.floor(grossWage * 0.094);
+      }
+      const netWage = grossWage - taxAmount;
+
+      document.getElementById('edit-preview-hours').innerText = `${hours}시간`;
+      document.getElementById('edit-preview-gross').innerText = `₩ ${grossWage.toLocaleString()}`;
+      document.getElementById('edit-preview-tax').innerText = taxAmount > 0 ? `-₩ ${taxAmount.toLocaleString()}` : '0원 (공제 없음)';
+      document.getElementById('edit-preview-net').innerText = `₩ ${netWage.toLocaleString()}`;
+
+      return { hours, grossWage, taxAmount, netWage };
+    }
+
+    function saveEditedShift(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-shift-id').value;
+      const shift = shifts.find(s => s.id === id);
+      if (!shift) return;
+
+      const wpId = document.getElementById('edit-shift-workplace-id').value;
+      const date = document.getElementById('edit-shift-date').value;
+      const start = document.getElementById('edit-shift-start').value;
+      const end = document.getElementById('edit-shift-end').value;
+      const breakMins = parseInt(document.getElementById('edit-shift-break').value) || 0;
+      const payday = document.getElementById('edit-shift-payday').value || date;
+      const memo = document.getElementById('edit-shift-memo').value;
+
+      const calc = updateEditWageCalculation();
+
+      shift.workplaceId = wpId;
+      shift.date = date;
+      shift.start = start;
+      shift.end = end;
+      shift.breakMins = breakMins;
+      shift.hours = calc.hours;
+      shift.grossWage = calc.grossWage;
+      shift.taxType = editShiftTaxType;
+      shift.taxAmount = calc.taxAmount;
+      shift.wage = calc.netWage;
+      shift.payday = payday;
+      shift.memo = memo;
+
+      saveState();
+      closeModal('modal-edit-shift');
+      showToast(`🎉 근무 수정 완료! (실수령액: ₩ ${calc.netWage.toLocaleString()})`);
+
+      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+      if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+      if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
     }
 
     function deleteShift(id) {
@@ -2808,7 +3048,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.3.0";
+    const CURRENT_APP_VERSION = "2.4.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
