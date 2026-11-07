@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.8.1</span>
+            <span class="brand-tag">v2.8.2</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1786,7 +1786,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.1)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.2)
         </p>
       </div>
 
@@ -1795,7 +1795,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.1</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.2</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2848,17 +2848,10 @@
       const name = document.getElementById('inp-name').value;
       const rate = parseInt(document.getElementById('inp-wage').value) || 10320;
       const location = document.getElementById('inp-location').value;
-      const payType = document.getElementById('inp-pay-type').value;
+      const payDayEl = document.getElementById('inp-pay-day-select');
+      const payDay = payDayEl ? payDayEl.value : '15';
+      const payTypeLabel = formatPaydayLabel(payDay);
       const memo = document.getElementById('inp-memo').value;
-
-      const labels = {
-        monthly_10: "매월 10일 입금",
-        monthly_15: "매월 15일 입금",
-        monthly_end: "매월 말일 입금",
-        same_day: "당일 즉시 입금",
-        next_day: "익일 입금",
-        custom: "지정일 입금"
-      };
 
       const newWp = {
         id: "wp_" + Date.now(),
@@ -2867,6 +2860,11 @@
         rate,
         color: currentModalType === 'daily' ? '#D97706' : '#4F46E5',
         location,
+        payDay: payDay,
+        payType: payDay,
+        payTypeLabel: payTypeLabel,
+        memo
+      };
         payType,
         payTypeLabel: labels[payType] || "익월 15일",
         memo
@@ -3347,7 +3345,14 @@
       document.getElementById('edit-wp-name').value = wp.name;
       document.getElementById('edit-wp-type').value = wp.type || 'regular';
       document.getElementById('edit-wp-rate').value = wp.rate;
-      document.getElementById('edit-wp-paytype').value = wp.payType || 'monthly_15';
+      const payDaySel = document.getElementById('edit-wp-pay-day-select');
+      if (payDaySel) {
+        let val = wp.payDay || wp.payType || '15';
+        if (val === 'monthly_15') val = '15';
+        else if (val === 'monthly_10') val = '10';
+        else if (val === 'monthly_last' || val === 'monthly_end') val = 'last';
+        payDaySel.value = val;
+      }
       document.getElementById('edit-wp-location').value = wp.location || '';
 
       const wpShifts = shifts.filter(s => s.workplaceId === wp.id);
@@ -3427,13 +3432,18 @@
       const name = document.getElementById('edit-wp-name').value.trim();
       const type = document.getElementById('edit-wp-type').value;
       const rate = parseInt(document.getElementById('edit-wp-rate').value) || 10320;
-      const payType = document.getElementById('edit-wp-paytype').value;
+      const payDayEl = document.getElementById('edit-wp-pay-day-select');
+      const payDay = payDayEl ? payDayEl.value : '15';
+      const payTypeLabel = formatPaydayLabel(payDay);
       const location = document.getElementById('edit-wp-location').value.trim();
       const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
 
       wp.name = name;
       wp.type = type;
       wp.rate = rate;
+      wp.payDay = payDay;
+      wp.payType = payDay;
+      wp.payTypeLabel = payTypeLabel;
       wp.payType = payType;
       wp.location = location;
       wp.defaultTaxType = editWpTaxType;
@@ -3832,7 +3842,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.8.1";
+    const CURRENT_APP_VERSION = "2.8.2";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
