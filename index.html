@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.8.0</span>
+            <span class="brand-tag">v2.8.1</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1250,15 +1250,47 @@
             <input type="number" class="form-input" id="inp-wage" value="10320" required>
           </div>
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">정산 방식</label>
-            <select class="form-select" id="inp-pay-type">
-              <option value="monthly_10">익월 10일</option>
-              <option value="monthly_15">익월 15일</option>
-              <option value="monthly_end">익월 말일</option>
-              <option value="same_day">당일 즉시 지급</option>
-              <option value="next_day">익일 지급</option>
-              <option value="custom">직접 지정</option>
-            </select>
+            <label class="form-label">💳 정산일</label>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 13.5px; font-weight: 700; color: #334155;">매달</span>
+              <select class="form-select" id="inp-pay-day-select" style="flex: 1; padding: 10px 6px; font-size: 13.5px; font-weight: 800; color: #1E293B; border-radius: 8px;">
+              <option value="1" >1일</option>
+              <option value="2" >2일</option>
+              <option value="3" >3일</option>
+              <option value="4" >4일</option>
+              <option value="5" >5일</option>
+              <option value="6" >6일</option>
+              <option value="7" >7일</option>
+              <option value="8" >8일</option>
+              <option value="9" >9일</option>
+              <option value="10" >10일</option>
+              <option value="11" >11일</option>
+              <option value="12" >12일</option>
+              <option value="13" >13일</option>
+              <option value="14" >14일</option>
+              <option value="15" selected>15일</option>
+              <option value="16" >16일</option>
+              <option value="17" >17일</option>
+              <option value="18" >18일</option>
+              <option value="19" >19일</option>
+              <option value="20" >20일</option>
+              <option value="21" >21일</option>
+              <option value="22" >22일</option>
+              <option value="23" >23일</option>
+              <option value="24" >24일</option>
+              <option value="25" >25일</option>
+              <option value="26" >26일</option>
+              <option value="27" >27일</option>
+              <option value="28" >28일</option>
+              <option value="29" >29일</option>
+              <option value="30" >30일</option>
+              <option value="31" >31일</option>
+              <option value="last" >말일 (월 마지막 날)</option>
+              <option value="same_day" >당일 (근무 당일 즉시)</option>
+              <option value="next_day" >익일 (근무 다음날)</option>
+              </select>
+              <span style="font-size: 13.5px; font-weight: 700; color: #334155;">일</span>
+            </div>
           </div>
         </div>
 
@@ -1532,14 +1564,47 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">💳 정산 예정일 (급여일)</label>
-          <select class="form-select" id="edit-wp-paytype">
-            <option value="monthly_15">매월 15일 입금</option>
-            <option value="monthly_10">매월 10일 입금</option>
-            <option value="monthly_last">매월 말일 입금</option>
-            <option value="same_day">근무 당일 즉시 입금</option>
-            <option value="next_day">근무 익일 입금</option>
-          </select>
+          <label class="form-label">💳 정산일 (급여일)</label>
+          <div style="display: flex; align-items: center; gap: 8px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 8px 12px;">
+            <span style="font-size: 14px; font-weight: 700; color: #334155;">매달</span>
+            <select class="form-select" id="edit-wp-pay-day-select" style="flex: 1; padding: 10px 8px; font-size: 14px; font-weight: 800; color: #1E293B; border-radius: 8px; background: #FFFFFF;">
+            <option value="1" >1일</option>
+              <option value="2" >2일</option>
+              <option value="3" >3일</option>
+              <option value="4" >4일</option>
+              <option value="5" >5일</option>
+              <option value="6" >6일</option>
+              <option value="7" >7일</option>
+              <option value="8" >8일</option>
+              <option value="9" >9일</option>
+              <option value="10" >10일</option>
+              <option value="11" >11일</option>
+              <option value="12" >12일</option>
+              <option value="13" >13일</option>
+              <option value="14" >14일</option>
+              <option value="15" selected>15일</option>
+              <option value="16" >16일</option>
+              <option value="17" >17일</option>
+              <option value="18" >18일</option>
+              <option value="19" >19일</option>
+              <option value="20" >20일</option>
+              <option value="21" >21일</option>
+              <option value="22" >22일</option>
+              <option value="23" >23일</option>
+              <option value="24" >24일</option>
+              <option value="25" >25일</option>
+              <option value="26" >26일</option>
+              <option value="27" >27일</option>
+              <option value="28" >28일</option>
+              <option value="29" >29일</option>
+              <option value="30" >30일</option>
+              <option value="31" >31일</option>
+              <option value="last" >말일 (월 마지막 날)</option>
+              <option value="same_day" >당일 (근무 당일 즉시)</option>
+              <option value="next_day" >익일 (근무 다음날)</option>
+            </select>
+            <span style="font-size: 14px; font-weight: 700; color: #334155;">일</span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -1721,7 +1786,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.0)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.1)
         </p>
       </div>
 
@@ -1730,7 +1795,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.1</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -1841,7 +1906,48 @@
       { id: "s8", workplaceId: "wp_2", date: "2026-11-15", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 스태프 2일차", payday: "2026-11-15", isSettled: false, isPayday: true }
     ];
 
+
+    function calculatePaydayForWorkplace(wp, shiftDateStr) {
+      if (!wp) return shiftDateStr;
+      const [y, m, d] = (shiftDateStr || '2026-11-01').split('-').map(Number);
+      const payDay = wp.payDay || wp.payType || '15';
+
+      if (payDay === 'same_day') {
+        return shiftDateStr;
+      }
+      if (payDay === 'next_day') {
+        const nextDate = new Date(y, m - 1, d + 1);
+        return `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
+      }
+      if (payDay === 'last' || payDay === 'monthly_last' || payDay === 'monthly_end') {
+        const lastDay = new Date(y, m, 0).getDate();
+        return `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      }
+
+      const dayNum = parseInt(payDay) || 15;
+      let targetY = y;
+      let targetM = m + 1;
+      if (targetM > 12) {
+        targetM = 1;
+        targetY++;
+      }
+      const maxDaysInTargetMonth = new Date(targetY, targetM, 0).getDate();
+      const actualDay = Math.min(dayNum, maxDaysInTargetMonth);
+      return `${targetY}-${String(targetM).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+    }
+
+    function formatPaydayLabel(payDay) {
+      if (payDay === 'last') return '매월 말일 입금';
+      if (payDay === 'same_day') return '근무 당일 즉시 입금';
+      if (payDay === 'next_day') return '근무 익일 입금';
+      return `매월 ${payDay}일 입금`;
+    }
+
     let currentTab = 'home';
+    let currentHomeFilter = 'all'; // 'all' | 'regular' | 'daily'
+    let currentDetailWpId = null;
+    let detailSubTab = 'shifts'; // 'shifts' | 'payslip'
+    let detailEditMode = false;
     const SAMPLE_VERSION = 'v2_mega_coex';
     let storedVersion = localStorage.getItem('albalog_sample_ver');
 
@@ -2896,13 +3002,8 @@
       const workplaceId = document.getElementById('shift-workplace-id').value;
       const wp = workplaces.find(w => w.id === workplaceId);
       if (wp) {
-        if (wp.payType === 'monthly_15') {
-          document.getElementById('shift-payday').value = `2026-12-15`;
-        } else if (wp.payType === 'monthly_10') {
-          document.getElementById('shift-payday').value = `2026-12-10`;
-        } else {
-          document.getElementById('shift-payday').value = selectedShiftDates[0] || `2026-11-${String(new Date().getDate()).padStart(2, '0')}`;
-        }
+        const baseDate = selectedShiftDates[0] || '2026-11-01';
+        document.getElementById('shift-payday').value = calculatePaydayForWorkplace(wp, baseDate);
       }
       updateWageCalculation();
     }
@@ -3731,7 +3832,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.8.0";
+    const CURRENT_APP_VERSION = "2.8.1";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
