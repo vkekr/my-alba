@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.0</span>
+            <span class="brand-tag">v2.7.0</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1508,14 +1508,14 @@
             <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">실수령액 자동 반영</span>
           </div>
           <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-            <button type="button" class="tax-toggle-btn active" id="edit-wp-tax-none" onclick="setEditWpTax('none')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
-              공제 없음
+            <button type="button" class="tax-toggle-btn active" id="edit-wp-tax-none" onclick="setEditWpTax('none')" style="flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 800; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              공제 없음 (세금 X)
             </button>
-            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-33" onclick="setEditWpTax('3.3')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
-              3.3% 사업소득
+            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-33" onclick="setEditWpTax('3.3')" style="flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 800; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              3.3% 사업소득세
             </button>
-            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-four" onclick="setEditWpTax('four_ins')" style="flex: 1; padding: 10px 4px; font-size: 12.5px; font-weight: 700; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
-              4대보험 (9.4%)
+            <button type="button" class="tax-toggle-btn" id="edit-wp-tax-four" onclick="setEditWpTax('four_ins')" style="flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 800; border: 1.5px solid #CBD5E1; border-radius: 12px; background: #FFFFFF; color: #64748B; cursor: pointer;">
+              4대보험 (약 9.4%)
             </button>
           </div>
 
@@ -1721,7 +1721,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.0)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.7.0)
         </p>
       </div>
 
@@ -1730,7 +1730,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.6.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.7.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2008,11 +2008,11 @@
 
               <div class="wp-card-actions">
                 ${activeClock && activeClock.workplaceId === wp.id ?
-  `<button class="btn-action btn-clock btn-clocked-in" onclick="clockOut()">🛑 퇴근하기</button>` :
+  `<button class="btn-action btn-clock btn-clocked-in" onclick="clockOut()">🛑 퇴근</button>` :
   `<button class="btn-action btn-clock" onclick="quickClockIn('${wp.id}')">⚡ 출근</button>`
 }
-                <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무 등록</button>
-                <button class="btn-action btn-edit" style="color: #4F46E5; border: 1.5px solid #C7D2FE; background: #EEF2FF; font-weight: 700; padding: 7px 12px; border-radius: 8px; cursor: pointer;" onclick="openEditWorkplaceModal('${wp.id}')">✏️ 수정</button>
+                <button class="btn-action btn-add" onclick="openAddShiftModal('${wp.id}')">＋ 근무</button>
+                <button class="btn-action btn-edit" style="color: #4F46E5; border: 1.5px solid #C7D2FE; background: #EEF2FF;" onclick="openEditWorkplaceModal('${wp.id}')">✏️ 수정</button>
                 <button class="btn-action btn-del" onclick="deleteWorkplace('${wp.id}')" title="근무지 삭제">삭제</button>
               </div>
             </div>
@@ -3393,6 +3393,11 @@
       }
     }
 
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
     }
@@ -3410,7 +3415,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.6.0";
+    const CURRENT_APP_VERSION = "2.7.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
