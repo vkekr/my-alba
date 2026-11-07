@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.8.3</span>
+            <span class="brand-tag">v2.8.4</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1219,7 +1219,20 @@
     </nav>
   </div>
 
-  <!-- MODAL: ADD WORKPLACE / GIG -->
+    <!-- MODAL: MONTHLY EARNINGS SUMMARY (월별 번 돈 정리 & 결산) -->
+  <div class="modal-overlay" id="modal-monthly-earnings" onclick="closeModalOnOverlay(event, 'modal-monthly-earnings')">
+    <div class="bottom-sheet" style="max-height: 88vh; overflow-y: auto;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">
+        <span>📊 월별 번 돈 정리 & 결산</span>
+        <button class="btn-icon" onclick="closeModal('modal-monthly-earnings')">✕</button>
+      </div>
+
+      <div id="monthly-earnings-content"></div>
+    </div>
+  </div>
+
+<!-- MODAL: ADD WORKPLACE / GIG -->
   <div class="modal-overlay" id="modal-add-workplace" onclick="closeModalOnOverlay(event, 'modal-add-workplace')">
     <div class="bottom-sheet">
       <div class="sheet-handle"></div>
@@ -1791,7 +1804,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.3)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.8.4)
         </p>
       </div>
 
@@ -1800,7 +1813,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.3</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.8.4</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2573,13 +2586,21 @@
 
       let html = `
         <div class="cal-controls">
-          <div class="cal-month-header">
-            <span class="cal-arrow" onclick="prevMonth()">‹</span>
-            <span>${selectedYear}.${String(selectedMonth).padStart(2,'0')}</span>
-            <span class="cal-arrow" onclick="nextMonth()">›</span>
+          <div class="cal-month-header" onclick="openMonthlyEarningsModal()" style="cursor: pointer;" title="월별 번 돈 정리 & 통계 보기">
+            <span class="cal-arrow" onclick="event.stopPropagation(); prevMonth()">‹</span>
+            <span class="cal-month-title" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 8px; background: #EEF2FF; color: #4338CA;">
+              <span>${selectedYear}.${String(selectedMonth).padStart(2,'0')}</span>
+              <span style="font-size: 11px; color: #6366F1;">📊</span>
+            </span>
+            <span class="cal-arrow" onclick="event.stopPropagation(); nextMonth()">›</span>
           </div>
-          <div style="font-size: 15px; font-weight: 800; color: #4F46E5;">
-            총 ${totalWage.toLocaleString()}원
+          <div onclick="openMonthlyEarningsModal()" style="display: flex; align-items: center; gap: 6px; cursor: pointer;" title="월별 번 돈 정리 & 통계 보기">
+            <div style="font-size: 15px; font-weight: 800; color: #4F46E5;">
+              총 ${totalWage.toLocaleString()}원
+            </div>
+            <span style="font-size: 11px; font-weight: 700; color: #4338CA; background: #EEF2FF; border: 1px solid #C7D2FE; padding: 2px 6px; border-radius: 6px;">
+              월별정산 ▾
+            </span>
           </div>
         </div>
 
@@ -3867,6 +3888,196 @@
       }
     }
 
+    
+    // --- MONTHLY EARNINGS SUMMARY MODAL ENGINE (v2.8.4) ---
+    let monthlyModalYear = 2026;
+
+    function openMonthlyEarningsModal(year = selectedYear) {
+      monthlyModalYear = year;
+      renderMonthlyEarningsModalContent();
+      openModal('modal-monthly-earnings');
+    }
+
+    function changeMonthlyEarningsYear(delta) {
+      monthlyModalYear += delta;
+      renderMonthlyEarningsModalContent();
+    }
+
+    function selectMonthFromModal(year, month) {
+      selectedYear = year;
+      selectedMonth = month;
+      closeModal('modal-monthly-earnings');
+      if (currentTab !== 'cal') {
+        switchTab('cal');
+      } else {
+        renderCalendar(document.getElementById('main-view'));
+      }
+      showToast(`📅 ${year}년 ${month}월 달력으로 이동했어요!`);
+    }
+
+    function renderMonthlyEarningsModalContent() {
+      const container = document.getElementById('monthly-earnings-content');
+      if (!container) return;
+
+      const year = monthlyModalYear;
+      
+      let yearTotalGross = 0;
+      let yearTotalTax = 0;
+      let yearTotalNet = 0;
+      let yearTotalShifts = 0;
+
+      const monthData = {};
+      for (let m = 1; m <= 12; m++) {
+        monthData[m] = {
+          month: m,
+          gross: 0,
+          tax: 0,
+          net: 0,
+          shiftsCount: 0,
+          pendingGross: 0,
+          settledGross: 0,
+          byWorkplace: {}
+        };
+      }
+
+      shifts.forEach(s => {
+        const [sy, sm] = s.date.split('-').map(Number);
+        if (sy === year && sm >= 1 && sm <= 12) {
+          const mBucket = monthData[sm];
+          mBucket.gross += s.wage;
+          mBucket.shiftsCount++;
+          yearTotalGross += s.wage;
+          yearTotalShifts++;
+
+          let tax = s.taxAmount || 0;
+          if (!tax && s.taxType === '3.3') tax = Math.floor((s.wage / 0.967) * 0.033);
+          else if (!tax && s.taxType === 'four_ins') tax = Math.floor((s.wage / 0.906) * 0.094);
+          mBucket.tax += tax;
+          yearTotalTax += tax;
+
+          if (s.isSettled) {
+            mBucket.settledGross += s.wage;
+          } else {
+            mBucket.pendingGross += s.wage;
+          }
+
+          const wp = workplaces.find(w => w.id === s.workplaceId);
+          const wpName = wp ? wp.name : (s.workplaceName || '알바');
+          const wpType = wp ? wp.type : (s.type || 'regular');
+          if (!mBucket.byWorkplace[s.workplaceId]) {
+            mBucket.byWorkplace[s.workplaceId] = { name: wpName, wage: 0, count: 0, type: wpType };
+          }
+          mBucket.byWorkplace[s.workplaceId].wage += s.wage;
+          mBucket.byWorkplace[s.workplaceId].count++;
+        }
+      });
+
+      for (let m = 1; m <= 12; m++) {
+        monthData[m].net = monthData[m].gross - monthData[m].tax;
+      }
+      yearTotalNet = yearTotalGross - yearTotalTax;
+
+      let maxMonthGross = 1;
+      for (let m = 1; m <= 12; m++) {
+        if (monthData[m].gross > maxMonthGross) maxMonthGross = monthData[m].gross;
+      }
+
+      let html = `
+        <!-- Year Selector Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; background: #F8FAFC; padding: 10px 16px; border-radius: 14px; border: 1px solid #E2E8F0;">
+          <button type="button" class="btn-icon" style="width: 32px; height: 32px; font-size: 16px; background: #FFFFFF; border: 1px solid #CBD5E1;" onclick="changeMonthlyEarningsYear(-1)">‹</button>
+          <div style="font-size: 16px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+            <span>🗓️ ${year}년 전체 수입</span>
+          </div>
+          <button type="button" class="btn-icon" style="width: 32px; height: 32px; font-size: 16px; background: #FFFFFF; border: 1px solid #CBD5E1;" onclick="changeMonthlyEarningsYear(1)">›</button>
+        </div>
+
+        <!-- Annual Summary Banner Card -->
+        <div style="background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%); border-radius: 18px; padding: 18px 20px; color: #FFFFFF; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);">
+          <div style="font-size: 12px; font-weight: 600; color: #E0E7FF; margin-bottom: 4px;">${year}년 연간 총 수입</div>
+          <div style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 12px;">₩ ${yearTotalGross.toLocaleString()}</div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background: rgba(255,255,255,0.12); padding: 10px 12px; border-radius: 12px; font-size: 11.5px;">
+            <div>
+              <div style="color: #C7D2FE;">실수령액</div>
+              <div style="font-weight: 800; font-size: 13px; margin-top: 2px;">₩ ${yearTotalNet.toLocaleString()}</div>
+            </div>
+            <div>
+              <div style="color: #FCA5A5;">공제 세금</div>
+              <div style="font-weight: 800; font-size: 13px; margin-top: 2px; color: #FEE2E2;">-₩ ${yearTotalTax.toLocaleString()}</div>
+            </div>
+            <div>
+              <div style="color: #C7D2FE;">총 근무</div>
+              <div style="font-weight: 800; font-size: 13px; margin-top: 2px;">${yearTotalShifts}일</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1~12 Month List -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+      `;
+
+      for (let m = 1; m <= 12; m++) {
+        const d = monthData[m];
+        const isCurrentActive = (year === selectedYear && m === selectedMonth);
+        const hasData = d.shiftsCount > 0;
+        const barWidth = hasData ? Math.round((d.gross / maxMonthGross) * 100) : 0;
+
+        html += `
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; border: 1.5px solid ${isCurrentActive ? '#6366F1' : '#E2E8F0'}; box-shadow: 0 1px 4px rgba(0,0,0,0.03); transition: all 0.2s;" onclick="selectMonthFromModal(${year}, ${m})">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 15px; font-weight: 800; color: #1E293B;">${m}월</span>
+                ${isCurrentActive ? '<span style="font-size: 10.5px; font-weight: 700; color: #4F46E5; background: #EEF2FF; padding: 2px 6px; border-radius: 6px;">현재 달력</span>' : ''}
+                ${hasData ? `<span style="font-size: 11px; color: #64748B; font-weight: 600;">${d.shiftsCount}일 근무</span>` : '<span style="font-size: 11px; color: #94A3B8;">기록 없음</span>'}
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: 800; color: ${hasData ? '#4F46E5' : '#94A3B8'};">
+                  ₩ ${d.gross.toLocaleString()}
+                </div>
+                ${d.tax > 0 ? `<div style="font-size: 11px; color: #EF4444; font-weight: 600;">실수령 ₩ ${d.net.toLocaleString()} (-${d.tax.toLocaleString()}원)</div>` : ''}
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            ${hasData ? `
+              <div style="width: 100%; height: 6px; background: #F1F5F9; border-radius: 10px; overflow: hidden; margin: 8px 0;">
+                <div style="width: ${barWidth}%; height: 100%; background: linear-gradient(90deg, #6366F1, #818CF8); border-radius: 10px;"></div>
+              </div>
+            ` : ''}
+
+            <!-- Workplace Chips -->
+            ${hasData ? `
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #F1F5F9;">
+                ${Object.values(d.byWorkplace).map(wp => `
+                  <span style="font-size: 11px; font-weight: 600; background: ${wp.type === 'regular' ? '#EFF6FF' : '#FEF3C7'}; color: ${wp.type === 'regular' ? '#1D4ED8' : '#B45309'}; padding: 3px 8px; border-radius: 6px;">
+                    ${wp.type === 'regular' ? '🏢' : '⭐'} ${wp.name}: ${wp.count}일 (₩${wp.wage.toLocaleString()})
+                  </span>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+              <span style="font-size: 11.5px; font-weight: 700; color: #6366F1; cursor: pointer;">
+                ${isCurrentActive ? '👉 달력 보는 중' : '📅 이 달 달력 보기 ›'}
+              </span>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+        </div>
+        <div style="margin-top: 16px;">
+          <button type="button" class="btn-cancel-modal" onclick="closeModal('modal-monthly-earnings')" style="width: 100%; padding: 14px; font-size: 14px;">
+            ✕ 닫기
+          </button>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
     function openModal(id) {
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
@@ -3889,7 +4100,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.8.3";
+    const CURRENT_APP_VERSION = "2.8.4";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
