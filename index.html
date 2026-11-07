@@ -1446,6 +1446,11 @@
               </select>
             </div>
 
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px;">
+              <span style="font-size: 12.5px; font-weight: 700; color: #475569;">매월 말일 세금 정산 일정 포함</span>
+              <input type="checkbox" id="shift-cal-tax" checked onchange="saveCalPreference()" style="width: 18px; height: 18px; accent-color: #4F46E5; cursor: pointer;">
+            </div>
+
             <div style="font-size: 11px; color: #64748B; line-height: 1.45; background: #F8FAFC; padding: 8px 12px; border-radius: 10px; border: 1px solid #E2E8F0;">
               💡 캘린더 이름을 원하는 대로 지정하면 아이폰 캘린더의 해당 캘린더로 깔끔하게 묶여 들어갑니다! 정산일도 근무지당 딱 1개로 합산 표시돼요.
             </div>
@@ -1638,7 +1643,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.4.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.5.0</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -1671,6 +1676,12 @@
               <option value="120">2시간 전</option>
               <option value="1440">1일 전 (전날 저녁)</option>
             </select>
+          </div>
+          <div style="padding-top: 4px;">
+            <label style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; font-weight: 700; color: #334155; cursor: pointer;">
+              <span>매월 말일 세금 공제 일정 포함 (.ics)</span>
+              <input type="checkbox" id="setting-cal-tax" checked onchange="updateDefaultCalTax(this.checked)" style="width: 18px; height: 18px; accent-color: #4F46E5; cursor: pointer;">
+            </label>
           </div>
         </div>
       </div>
@@ -1929,6 +1940,43 @@
     }
 
     // --- CALENDAR VIEW (STRICT FIXED HEIGHT) ---
+
+    // --- SHIFT EVENT TITLE & MONTH TAX ENGINE ---
+    // 정기알바: [알바] 메가커피
+    // 일일알바: [일일] 코엑스(위치)
+    function formatShiftEventTitle(wp, shift) {
+      if (!wp) return (shift && shift.title) ? shift.title : '[알바] 근무';
+      const isDaily = (wp.type === 'daily');
+      if (isDaily) {
+        const loc = (wp.location || (shift && shift.location) || '').trim();
+        const locSuffix = loc ? `(${loc})` : '';
+        return `[일일] ${wp.name}${locSuffix}`;
+      } else {
+        return `[알바] ${wp.name}`;
+      }
+    }
+
+    function getMonthTaxSummary(year, month) {
+      const monthTaxesByWp = {};
+      let monthTotalTax = 0;
+
+      shifts.forEach(s => {
+        const [sy, sm] = s.date.split('-').map(Number);
+        if (sy === year && sm === month) {
+          let tax = s.taxAmount || 0;
+          if (!tax && s.taxType === '3.3') tax = Math.floor((s.wage / 0.967) * 0.033);
+          else if (!tax && s.taxType === 'four_ins') tax = Math.floor((s.wage / 0.906) * 0.094);
+
+          if (tax > 0) {
+            monthTotalTax += tax;
+            monthTaxesByWp[s.workplaceId] = (monthTaxesByWp[s.workplaceId] || 0) + tax;
+          }
+        }
+      });
+
+      return { monthTotalTax, monthTaxesByWp };
+    }
+
     function renderCalendar(container) {
       let totalWage = 0;
       shifts.forEach(s => {
@@ -1979,10 +2027,13 @@
         html += `<div class="cal-cell other-month"></div>`;
       }
 
+      const { monthTotalTax, monthTaxesByWp } = getMonthTaxSummary(selectedYear, selectedMonth);
+
       for (let day = 1; day <= lastDay; day++) {
         const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         const dayShifts = shifts.filter(s => s.date === dateStr);
         const paydaysLandingToday = shifts.filter(s => s.payday === dateStr && !s.isTax);
+        const isLastDay = (day === lastDay);
 
         const dayOfWeek = (firstDayIndex + day - 1) % 7;
         const isSun = dayOfWeek === 0;
@@ -2029,10 +2080,29 @@
           html += `<div class="cal-event-chip chip-blue">+${dayShifts.length - 2}</div>`;
         }
 
+        // If last day of the month and there are monthly taxes, show workplace tax chips (하우머치 스타일!)
+        if (isLastDay && monthTotalTax > 0) {
+          Object.entries(monthTaxesByWp).forEach(([wpId, t]) => {
+            const wp = workplaces.find(w => w.id === wpId) || {};
+            html += `
+              <div class="cal-event-chip" style="display: flex; align-items: center; gap: 4px; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; font-size: 10.5px; font-weight: 700; padding: 1px 4px; border-radius: 4px;">
+                <span style="width: 5px; height: 5px; border-radius: 50%; background: ${wp.color || '#EF4444'}; display: inline-block;"></span>
+                세금
+              </div>
+            `;
+          });
+        }
+
         html += `</div>`; // end cal-chips-container
 
         if (dayShifts.length > 0) {
-          html += `<div class="cal-cell-wage">${dayTotalWage.toLocaleString()}원</div>`;
+          if (isLastDay && monthTotalTax > 0) {
+            html += `<div class="cal-cell-wage" style="font-size: 10px; line-height: 1.2;">${dayTotalWage.toLocaleString()}원<br><span style="color: #EF4444; font-weight: 800;">-${monthTotalTax.toLocaleString()}원</span></div>`;
+          } else {
+            html += `<div class="cal-cell-wage">${dayTotalWage.toLocaleString()}원</div>`;
+          }
+        } else if (isLastDay && monthTotalTax > 0) {
+          html += `<div class="cal-cell-wage" style="color: #EF4444; font-weight: 800;">-${monthTotalTax.toLocaleString()}원</div>`;
         }
 
         html += `</div>`;
@@ -2047,15 +2117,24 @@
       html += `
         </div>
 
-        <div class="sync-banner">
-          <div class="sync-banner-text">
-            <div class="sync-banner-icon"></div>
-            <div>
-              <div class="sync-banner-title">애플 캘린더 일괄 동기화</div>
-              <div class="sync-banner-sub">근무 일정 + 알바비 입금 예정일까지 내보내요</div>
+        <div class="sync-banner" style="flex-direction: column; align-items: stretch; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="sync-banner-text">
+              <div class="sync-banner-icon"></div>
+              <div>
+                <div class="sync-banner-title">애플 캘린더 일괄 동기화</div>
+                <div class="sync-banner-sub">근무 일정 + 정산일까지 한 번에 내보내요</div>
+              </div>
             </div>
+            <button class="btn-sync-action" onclick="exportMonthToAppleCalendar()">동기화 (.ics)</button>
           </div>
-          <button class="btn-sync-action" onclick="exportMonthToAppleCalendar()">동기화 (.ics)</button>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.25); font-size: 11.5px; color: #E0E7FF;">
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
+              <input type="checkbox" id="sync-include-month-tax" checked onchange="saveCalPreference()" style="width: 16px; height: 16px; accent-color: #FBBF24; cursor: pointer;">
+              <span>매월 말일 세금 정산(${monthTotalTax > 0 ? '-' + monthTotalTax.toLocaleString() + '원' : '일정'}) 포함하기</span>
+            </label>
+            <span style="font-size: 10.5px; color: #C7D2FE;">선택 사항</span>
+          </div>
         </div>
       `;
 
@@ -2582,12 +2661,13 @@
       const paydayGroups = {};
 
       shiftList.forEach(s => {
+        const shiftTitle = formatShiftEventTitle(wp, s);
         events.push({
           id: s.id,
           date: s.date,
           start: s.start || '09:00',
           end: s.end || '16:00',
-          title: `${wp.name} 근무 (${s.hours}h · ${s.wage.toLocaleString()}원)`,
+          title: shiftTitle,
           location: wp.location || wp.name,
           description: `근무시간: ${s.hours}시간\n예상 실수령액: ${s.wage.toLocaleString()}원\n시급: ${wp.rate.toLocaleString()}원\n입금 예정일: ${s.payday}\n메모: ${s.memo || '없음'}`
         });
@@ -2641,6 +2721,31 @@
 
       const listContainer = document.getElementById('detail-shifts-list');
       let h = '';
+
+      // Check if this date is the last day of its month
+      const [dy, dm, dday] = dateStr.split('-').map(Number);
+      const monthLastDate = new Date(dy, dm, 0).getDate();
+      if (dday === monthLastDate) {
+        const { monthTotalTax, monthTaxesByWp } = getMonthTaxSummary(dy, dm);
+        if (monthTotalTax > 0) {
+          const breakdown = Object.entries(monthTaxesByWp).map(([wpId, t]) => {
+            const w = workplaces.find(wp => wp.id === wpId) || { name: '알바' };
+            return `• ${w.name}: -₩ ${t.toLocaleString()}`;
+          }).join('<br>');
+
+          h += `
+            <div style="background: #FFF1F2; border: 1.5px solid #FECDD3; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #9F1239;">📉 ${dm}월 세금 공제 합산</div>
+                <div style="font-size: 16px; font-weight: 900; color: #E11D48;">-₩ ${monthTotalTax.toLocaleString()}</div>
+              </div>
+              <div style="font-size: 12px; color: #BE123C; margin-top: 6px; line-height: 1.5;">
+                ${breakdown}
+              </div>
+            </div>
+          `;
+        }
+      }
 
       if (paydays.length > 0) {
         const sumP = paydays.reduce((a,c) => a + c.wage, 0);
@@ -3048,7 +3153,7 @@
 
 
     // --- APP VERSION & AUTO-UPDATE ENGINE ---
-    const CURRENT_APP_VERSION = "2.4.0";
+    const CURRENT_APP_VERSION = "2.5.0";
 
     async function checkAppUpdate(isManual = false) {
       if (isManual) {
@@ -3125,6 +3230,8 @@
       const alarmMins = getSelectedAlarmMins();
       localStorage.setItem('albalog_pref_cal_name', calName);
       localStorage.setItem('albalog_pref_cal_alarm', alarmMins);
+      const incTax = document.getElementById('shift-cal-tax') ? document.getElementById('shift-cal-tax').checked : (document.getElementById('sync-include-month-tax') ? document.getElementById('sync-include-month-tax').checked : true);
+      localStorage.setItem('albalog_pref_include_tax', incTax);
 
       // sync to settings modal if open
       const settingInput = document.getElementById('setting-cal-name');
@@ -3242,13 +3349,14 @@
     }
 
     function exportSingleShiftToAppleCalendar(shift, wp) {
+      const shiftTitle = formatShiftEventTitle(wp, shift);
       const events = [
         {
           id: shift.id,
           date: shift.date,
           start: shift.start || '09:00',
           end: shift.end || '16:00',
-          title: `${wp.name} 근무 (${shift.wage.toLocaleString()}원)`,
+          title: shiftTitle,
           location: wp.location || wp.name,
           description: `근무시간: ${shift.hours}시간\n예상일당: ${shift.wage.toLocaleString()}원\n입금예정일: ${shift.payday || '당일'}\n메모: ${shift.memo || '없음'}`
         }
@@ -3292,13 +3400,14 @@
       const paydayGroups = {};
 
       currentMonthShifts.forEach(s => {
-        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320 };
+        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
+        const shiftTitle = formatShiftEventTitle(wp, s);
         events.push({
           id: s.id,
           date: s.date,
           start: s.start || '09:00',
           end: s.end || '16:00',
-          title: `${wp.name} (${s.hours}h · ${s.wage.toLocaleString()}원)`,
+          title: shiftTitle,
           location: wp.location || wp.name,
           description: `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`
         });
@@ -3339,8 +3448,33 @@
         });
       });
 
-      const ics = generateIcs(events);
-      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_전체일정및입금일.ics`, ics);
+      // Optional: Include monthly tax deduction on the last day of the month
+      const includeTaxCheckbox = document.getElementById('sync-include-month-tax');
+      const includeTax = includeTaxCheckbox ? includeTaxCheckbox.checked : (localStorage.getItem('albalog_pref_include_tax') !== 'false');
+      const { monthTotalTax, monthTaxesByWp } = getMonthTaxSummary(selectedYear, selectedMonth);
+
+      if (includeTax && monthTotalTax > 0) {
+        const lastDayDateStr = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+        const taxDescLines = Object.entries(monthTaxesByWp).map(([wpId, t]) => {
+          const w = workplaces.find(wp => wp.id === wpId) || { name: '알바' };
+          return `• ${w.name}: -₩ ${t.toLocaleString()}`;
+        }).join('\n');
+
+        events.push({
+          id: `month_tax_${selectedYear}_${selectedMonth}`,
+          date: lastDayDateStr,
+          start: "18:00",
+          end: "18:30",
+          title: `📉 [세금 정산] ${selectedMonth}월 총 공제 (-₩ ${monthTotalTax.toLocaleString()})`,
+          location: "정산 내역",
+          description: `${selectedMonth}월 총 세금 공제 합산 내역: -₩ ${monthTotalTax.toLocaleString()}원\n${taxDescLines}`
+        });
+      }
+
+      const calName = getSelectedCalendarName();
+      const alarmMins = getSelectedAlarmMins();
+      const ics = generateIcs(events, calName, alarmMins);
+      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_전체일정및정산.ics`, ics);
     }
 
     // Init
