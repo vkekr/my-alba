@@ -835,6 +835,165 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+  
+    /* Modern Form Controls & Mini Calendar */
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1.5px solid #E2E8F0;
+      background: #FFFFFF;
+      font-size: 15px;
+      font-weight: 600;
+      color: #0F172A;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: #4F46E5;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    /* Mini Calendar */
+    .mini-cal-card {
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 14px 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+    .mini-cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+    .mini-cal-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1E293B;
+    }
+    .mini-cal-nav {
+      background: #F1F5F9;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #475569;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .mini-cal-nav:active {
+      background: #E2E8F0;
+    }
+    .mini-cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94A3B8;
+      margin-bottom: 8px;
+    }
+    .mini-cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .mini-cal-day {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1E293B;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .mini-cal-day.empty {
+      cursor: default;
+    }
+    .mini-cal-day:not(.empty):active {
+      transform: scale(0.92);
+    }
+    .mini-cal-day.today {
+      background: #F1F5F9;
+      font-weight: 800;
+    }
+    .mini-cal-day.selected {
+      background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
+      color: #FFFFFF !important;
+      font-weight: 800 !important;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+      transform: scale(1.05);
+    }
+    .mini-cal-selected-summary {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+    }
+
+    /* Tax Selector */
+    .tax-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .tax-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border-radius: 12px;
+      border: 1.5px solid #E2E8F0;
+      background: #FFFFFF;
+      color: #475569;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tax-btn.active {
+      background: #EEF2FF;
+      border-color: #4F46E5;
+      color: #4F46E5;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+    }
+
+    /* Live Wage Preview Card */
+    .wage-preview-card {
+      background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
+      border: 1.5px solid #C7D2FE;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
   </style>
 </head>
 <body>
@@ -938,7 +1097,7 @@
 
   <!-- MODAL: ADD SHIFT (근무 등록) -->
   <div class="modal-overlay" id="modal-add-shift" onclick="closeModalOnOverlay(event, 'modal-add-shift')">
-    <div class="bottom-sheet">
+    <div class="bottom-sheet" style="max-height: 90vh; overflow-y: auto;">
       <div class="sheet-handle"></div>
       <div class="sheet-title">
         <span>근무 등록</span>
@@ -946,51 +1105,126 @@
       </div>
 
       <form id="form-shift" onsubmit="saveShift(event)">
+        <!-- 1. 근무지 선택 -->
         <div class="form-group">
-          <label class="form-label">근무지 선택</label>
-          <select class="form-select" id="shift-workplace-id" required></select>
+          <label class="form-label">🏢 알바 근무지 선택</label>
+          <select class="form-select" id="shift-workplace-id" onchange="onShiftWorkplaceChange()" required></select>
         </div>
 
+        <!-- 2. 미니 캘린더 (다중 날짜 선택) -->
         <div class="form-group">
-          <label class="form-label">근무 날짜</label>
-          <input type="date" class="form-input" id="shift-date" required>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">📅 근무 날짜 선택 (달력 터치)</label>
+            <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">중복 다중 선택 가능</span>
+          </div>
+
+          <div class="mini-cal-card">
+            <div class="mini-cal-header">
+              <button type="button" class="mini-cal-nav" onclick="changeMiniCalMonth(-1)">◀</button>
+              <span class="mini-cal-title" id="mini-cal-month-title">2026년 11월</span>
+              <button type="button" class="mini-cal-nav" onclick="changeMiniCalMonth(1)">▶</button>
+            </div>
+            <div class="mini-cal-weekdays">
+              <span style="color: #EF4444;">일</span>
+              <span>월</span>
+              <span>화</span>
+              <span>수</span>
+              <span>목</span>
+              <span>금</span>
+              <span style="color: #3B82F6;">토</span>
+            </div>
+            <div class="mini-cal-days" id="mini-cal-days-grid"></div>
+
+            <div class="mini-cal-selected-summary">
+              <span id="mini-cal-selected-text" style="color: #475569; font-weight: 700;">선택된 날짜: 0일</span>
+              <button type="button" onclick="clearShiftDates()" style="background: none; border: none; color: #EF4444; font-size: 11.5px; font-weight: 700; cursor: pointer;">전체 취소</button>
+            </div>
+          </div>
         </div>
 
+        <!-- 3. 근무 시간 -->
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">시작 시간</label>
-            <input type="time" class="form-input" id="shift-start" value="09:00" required>
+            <label class="form-label">⏰ 시작 시간</label>
+            <input type="time" class="form-input" id="shift-start" value="09:00" onchange="updateWageCalculation()" required>
           </div>
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">종료 시간</label>
-            <input type="time" class="form-input" id="shift-end" value="16:00" required>
+            <label class="form-label">⏰ 종료 시간</label>
+            <input type="time" class="form-input" id="shift-end" value="16:00" onchange="updateWageCalculation()" required>
           </div>
         </div>
 
+        <!-- 4. 휴게 시간 & 입금 예정일 -->
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">휴게 시간 (분)</label>
-            <input type="number" class="form-input" id="shift-break" value="0" min="0" step="10">
+            <label class="form-label">☕ 휴게 시간 (분)</label>
+            <input type="number" class="form-input" id="shift-break" value="0" min="0" step="10" onchange="updateWageCalculation()">
           </div>
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">입금 예정일</label>
+            <label class="form-label">💰 입금 예정일</label>
             <input type="date" class="form-input" id="shift-payday">
           </div>
         </div>
 
+        <!-- 5. 3.3% / 4대보험 공제 선택 -->
         <div class="form-group">
-          <label class="form-label">근무 메모</label>
-          <input type="text" class="form-input" id="shift-memo" placeholder="예: 행사 스태프 근무">
+          <label class="form-label">🧾 세금 / 4대보험 공제</label>
+          <div class="tax-selector">
+            <button type="button" class="tax-btn active" id="tax-btn-none" onclick="setShiftTaxType('none')">
+              공제 없음 (100%)
+            </button>
+            <button type="button" class="tax-btn" id="tax-btn-33" onclick="setShiftTaxType('3.3')">
+              3.3% 사업소득세
+            </button>
+            <button type="button" class="tax-btn" id="tax-btn-four" onclick="setShiftTaxType('four_ins')">
+              4대보험 (약 9.4%)
+            </button>
+          </div>
         </div>
 
-        <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; margin-bottom: 14px; border: 1px solid #E2E8F0;">
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #1E293B; cursor: pointer;">
+        <!-- 6. 실시간 예상 정산액 미리보기 카드 -->
+        <div class="wage-preview-card" id="wage-preview-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: #475569; font-weight: 700;">일일 근무 시간</span>
+            <span style="font-size: 14px; font-weight: 800; color: #1E293B;" id="preview-hours">7.0시간</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: #475569; font-weight: 700;">일일 세전 시급 계산</span>
+            <span style="font-size: 14px; font-weight: 700; color: #64748B;" id="preview-gross">72,240원</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed #C7D2FE;">
+            <span style="font-size: 13px; color: #EF4444; font-weight: 700;" id="preview-tax-label">공제 금액</span>
+            <span style="font-size: 14px; font-weight: 700; color: #EF4444;" id="preview-tax-amount">0원</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; color: #4F46E5; font-weight: 800;">일일 실수령액</div>
+              <div style="font-size: 18px; font-weight: 900; color: #4F46E5;" id="preview-net">72,240원</div>
+            </div>
+            <div style="text-align: right;" id="preview-total-box">
+              <div style="font-size: 12px; color: #059669; font-weight: 800;" id="preview-total-label">총 1일 예상 수입</div>
+              <div style="font-size: 18px; font-weight: 900; color: #059669;" id="preview-total-net">72,240원</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. 메모 -->
+        <div class="form-group">
+          <label class="form-label">📝 근무 메모</label>
+          <input type="text" class="form-input" id="shift-memo" placeholder="예: 미들 파트, 행사 지원 등">
+        </div>
+
+        <!-- 8. 애플 캘린더 동기화 옵션 -->
+        <div style="background: #FFFFFF; padding: 12px 14px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid #E2E8F0;">
+          <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 700; color: #1E293B; cursor: pointer;">
             <input type="checkbox" id="shift-sync-apple" checked style="width: 18px; height: 18px; accent-color: #4F46E5;">
             <span>📅 저장 즉시 애플 캘린더에 일정 추가 (.ics)</span>
           </label>
         </div>
 
-        <button type="submit" class="btn-submit">근무 저장하기</button>
+        <button type="submit" class="btn-submit" id="btn-save-shift" style="padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+          근무 저장하기
+        </button>
       </form>
     </div>
   </div>
@@ -1603,6 +1837,176 @@
       if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
     }
 
+    let selectedShiftDates = [];
+    let miniCalYear = 2026;
+    let miniCalMonth = 11;
+    let shiftTaxType = 'none'; // 'none' | '3.3' | 'four_ins'
+
+    function setShiftTaxType(type) {
+      shiftTaxType = type;
+      document.getElementById('tax-btn-none').classList.toggle('active', type === 'none');
+      document.getElementById('tax-btn-33').classList.toggle('active', type === '3.3');
+      document.getElementById('tax-btn-four').classList.toggle('active', type === 'four_ins');
+      updateWageCalculation();
+    }
+
+    function changeMiniCalMonth(delta) {
+      miniCalMonth += delta;
+      if (miniCalMonth < 1) { miniCalMonth = 12; miniCalYear--; }
+      else if (miniCalMonth > 12) { miniCalMonth = 1; miniCalYear++; }
+      renderMiniCalendar();
+    }
+
+    function toggleShiftDate(dateStr) {
+      const idx = selectedShiftDates.indexOf(dateStr);
+      if (idx > -1) {
+        selectedShiftDates.splice(idx, 1);
+      } else {
+        selectedShiftDates.push(dateStr);
+        selectedShiftDates.sort();
+      }
+      renderMiniCalendar();
+      updateWageCalculation();
+    }
+
+    function clearShiftDates() {
+      selectedShiftDates = [];
+      renderMiniCalendar();
+      updateWageCalculation();
+    }
+
+    function renderMiniCalendar() {
+      document.getElementById('mini-cal-month-title').innerText = `${miniCalYear}년 ${miniCalMonth}월`;
+      const grid = document.getElementById('mini-cal-days-grid');
+      grid.innerHTML = '';
+
+      const firstDay = new Date(miniCalYear, miniCalMonth - 1, 1).getDay();
+      const lastDate = new Date(miniCalYear, miniCalMonth, 0).getDate();
+      const todayStr = `2026-11-${String(new Date().getDate()).padStart(2, '0')}`;
+
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'mini-cal-day empty';
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= lastDate; day++) {
+        const dateStr = `${miniCalYear}-${String(miniCalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEl = document.createElement('div');
+        dayEl.className = 'mini-cal-day';
+        dayEl.innerText = day;
+
+        if (dateStr === todayStr) dayEl.classList.add('today');
+        if (selectedShiftDates.includes(dateStr)) dayEl.classList.add('selected');
+
+        dayEl.onclick = () => toggleShiftDate(dateStr);
+        grid.appendChild(dayEl);
+      }
+
+      const summaryText = document.getElementById('mini-cal-selected-text');
+      if (selectedShiftDates.length === 0) {
+        summaryText.innerText = "날짜를 선택해 주세요 (달력 터치)";
+        summaryText.style.color = "#94A3B8";
+      } else {
+        const dateLabels = selectedShiftDates.map(d => {
+          const parts = d.split('-');
+          return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+        }).slice(0, 4).join(', ');
+        const extra = selectedShiftDates.length > 4 ? ` 외 ${selectedShiftDates.length - 4}일` : '';
+        summaryText.innerText = `선택된 날짜 (${selectedShiftDates.length}일): ${dateLabels}${extra}`;
+        summaryText.style.color = "#4F46E5";
+      }
+    }
+
+    function onShiftWorkplaceChange() {
+      const workplaceId = document.getElementById('shift-workplace-id').value;
+      const wp = workplaces.find(w => w.id === workplaceId);
+      if (wp) {
+        if (wp.payType === 'monthly_15') {
+          document.getElementById('shift-payday').value = `2026-12-15`;
+        } else if (wp.payType === 'monthly_10') {
+          document.getElementById('shift-payday').value = `2026-12-10`;
+        } else {
+          document.getElementById('shift-payday').value = selectedShiftDates[0] || `2026-11-${String(new Date().getDate()).padStart(2, '0')}`;
+        }
+      }
+      updateWageCalculation();
+    }
+
+    function updateWageCalculation() {
+      const workplaceId = document.getElementById('shift-workplace-id').value;
+      const wp = workplaces.find(w => w.id === workplaceId) || { rate: 10320 };
+      const start = document.getElementById('shift-start').value || "09:00";
+      const end = document.getElementById('shift-end').value || "16:00";
+      const breakMins = parseInt(document.getElementById('shift-break').value) || 0;
+
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      let diffMins = (eh * 60 + em) - (sh * 60 + sm) - breakMins;
+      if (diffMins < 0) diffMins += 24 * 60;
+      const hours = Math.round((diffMins / 60) * 10) / 10;
+
+      const grossWage = Math.round(hours * wp.rate);
+      let taxAmount = 0;
+      if (shiftTaxType === '3.3') {
+        taxAmount = Math.floor(grossWage * 0.033);
+      } else if (shiftTaxType === 'four_ins') {
+        taxAmount = Math.floor(grossWage * 0.094);
+      }
+      const netWage = grossWage - taxAmount;
+
+      const pHours = document.getElementById('preview-hours');
+      const pGross = document.getElementById('preview-gross');
+      const pTaxLabel = document.getElementById('preview-tax-label');
+      const pTaxAmount = document.getElementById('preview-tax-amount');
+      const pNet = document.getElementById('preview-net');
+      const pTotalLabel = document.getElementById('preview-total-label');
+      const pTotalNet = document.getElementById('preview-total-net');
+      const btnSave = document.getElementById('btn-save-shift');
+
+      if (pHours) pHours.innerText = `${hours}시간`;
+      if (pGross) pGross.innerText = `${grossWage.toLocaleString()}원 (${wp.rate.toLocaleString()}원/시)`;
+
+      if (pTaxLabel && pTaxAmount) {
+        if (shiftTaxType === 'none') {
+          pTaxLabel.innerText = "공제 없음";
+          pTaxAmount.innerText = "0원";
+        } else if (shiftTaxType === '3.3') {
+          pTaxLabel.innerText = "3.3% 사업소득세 공제";
+          pTaxAmount.innerText = `-${taxAmount.toLocaleString()}원`;
+        } else if (shiftTaxType === 'four_ins') {
+          pTaxLabel.innerText = "4대보험 공제 (~9.4%)";
+          pTaxAmount.innerText = `-${taxAmount.toLocaleString()}원`;
+        }
+      }
+
+      if (pNet) pNet.innerText = `${netWage.toLocaleString()}원`;
+
+      const count = selectedShiftDates.length;
+      const totalNet = netWage * count;
+
+      if (pTotalLabel && pTotalNet && btnSave) {
+        if (count === 0) {
+          pTotalLabel.innerText = "선택된 날짜 없음";
+          pTotalNet.innerText = "0원";
+          btnSave.innerText = "근무 날짜를 달력에서 선택해 주세요 (0개 선택됨)";
+          btnSave.style.opacity = "0.7";
+        } else if (count === 1) {
+          pTotalLabel.innerText = "선택된 1일 총 수입";
+          pTotalNet.innerText = `${netWage.toLocaleString()}원`;
+          btnSave.innerText = `1일 근무 저장하기 (${netWage.toLocaleString()}원)`;
+          btnSave.style.opacity = "1";
+        } else {
+          pTotalLabel.innerText = `총 ${count}일 합산 실수령액`;
+          pTotalNet.innerText = `${totalNet.toLocaleString()}원`;
+          btnSave.innerText = `총 ${count}일 근무 일괄 저장하기 (${totalNet.toLocaleString()}원)`;
+          btnSave.style.opacity = "1";
+        }
+      }
+
+      return { hours, grossWage, taxAmount, netWage };
+    }
+
     function openAddShiftModal(workplaceId, date) {
       if (workplaces.length === 0) {
         showToast("먼저 알바 근무지를 등록해 주세요!");
@@ -1612,58 +2016,145 @@
       const select = document.getElementById('shift-workplace-id');
       select.innerHTML = workplaces.map(w => `<option value="${w.id}" ${w.id === workplaceId ? 'selected' : ''}>${w.name} (${w.type === 'daily' ? '일일' : '정기'})</option>`).join('');
 
-      const d = date || `2026-11-${String(new Date().getDate()).padStart(2,'0')}`;
-      document.getElementById('shift-date').value = d;
-      document.getElementById('shift-payday').value = d;
+      selectedShiftDates = date ? [date] : [`2026-11-${String(new Date().getDate()).padStart(2, '0')}`];
+      if (date) {
+        const parts = date.split('-').map(Number);
+        miniCalYear = parts[0];
+        miniCalMonth = parts[1];
+      } else {
+        miniCalYear = 2026;
+        miniCalMonth = 11;
+      }
+
+      setShiftTaxType('none');
+      renderMiniCalendar();
+      onShiftWorkplaceChange();
       document.getElementById('modal-add-shift').classList.add('active');
     }
 
     function saveShift(e) {
       e.preventDefault();
+      if (selectedShiftDates.length === 0) {
+        showToast("근무 날짜를 달력에서 1개 이상 터치해 주세요!");
+        return;
+      }
+
       const workplaceId = document.getElementById('shift-workplace-id').value;
-      const date = document.getElementById('shift-date').value;
       const start = document.getElementById('shift-start').value;
       const end = document.getElementById('shift-end').value;
       const breakMins = parseInt(document.getElementById('shift-break').value) || 0;
-      const payday = document.getElementById('shift-payday').value || date;
+      const userPayday = document.getElementById('shift-payday').value;
       const memo = document.getElementById('shift-memo').value;
       const syncApple = document.getElementById('shift-sync-apple').checked;
 
-      const [sh, sm] = start.split(':').map(Number);
-      const [eh, em] = end.split(':').map(Number);
-      let diffMins = (eh * 60 + em) - (sh * 60 + sm) - breakMins;
-      if (diffMins < 0) diffMins += 24 * 60;
-      const hours = Math.round((diffMins / 60) * 10) / 10;
-
       const wp = workplaces.find(w => w.id === workplaceId) || { rate: 10320, name: '근무' };
-      const wage = Math.round(hours * wp.rate);
+      const calc = updateWageCalculation();
 
-      const newShift = {
-        id: "s_" + Date.now(),
-        workplaceId,
-        date,
-        start,
-        end,
-        hours,
-        wage,
-        payday,
-        memo,
-        isSettled: false
-      };
+      const newShiftsCreated = [];
 
-      shifts.push(newShift);
+      selectedShiftDates.forEach((date, i) => {
+        let payday = userPayday;
+        if (!payday) {
+          if (wp.payType === 'same_day') payday = date;
+          else if (wp.payType === 'next_day') {
+            const nextD = new Date(date);
+            nextD.setDate(nextD.getDate() + 1);
+            payday = nextD.toISOString().split('T')[0];
+          } else if (wp.payType === 'monthly_15') {
+            const [y, m] = date.split('-').map(Number);
+            let nextM = m + 1; let nextY = y;
+            if (nextM > 12) { nextM = 1; nextY++; }
+            payday = `${nextY}-${String(nextM).padStart(2,'0')}-15`;
+          } else if (wp.payType === 'monthly_10') {
+            const [y, m] = date.split('-').map(Number);
+            let nextM = m + 1; let nextY = y;
+            if (nextM > 12) { nextM = 1; nextY++; }
+            payday = `${nextY}-${String(nextM).padStart(2,'0')}-10`;
+          } else {
+            payday = date;
+          }
+        }
+
+        const newShift = {
+          id: "s_" + Date.now() + "_" + i,
+          workplaceId,
+          date,
+          start,
+          end,
+          hours: calc.hours,
+          grossWage: calc.grossWage,
+          taxType: shiftTaxType,
+          taxAmount: calc.taxAmount,
+          wage: calc.netWage,
+          payday,
+          memo,
+          isSettled: false
+        };
+
+        shifts.push(newShift);
+        newShiftsCreated.push(newShift);
+      });
+
       saveState();
       closeModal('modal-add-shift');
 
-      if (syncApple) {
-        exportSingleShiftToAppleCalendar(newShift, wp);
-      } else {
-        showToast(`근무가 등록되었어요! (${hours}시간, ${wage.toLocaleString()}원)`);
+      const totalAmount = calc.netWage * selectedShiftDates.length;
+      showToast(`🎉 ${selectedShiftDates.length}일 근무 등록 완료! (실수령 총 ₩ ${totalAmount.toLocaleString()})`);
+
+      if (syncApple && newShiftsCreated.length > 0) {
+        exportMultipleShiftsToAppleCalendar(newShiftsCreated, wp);
       }
 
       if (currentTab === 'home') renderHome(document.getElementById('main-view'));
       if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
       if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+    }
+
+    function exportMultipleShiftsToAppleCalendar(shiftList, wp) {
+      if (!shiftList || shiftList.length === 0) return;
+      let icsEvents = '';
+      const nowStr = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+      shiftList.forEach(s => {
+        const [sy, sm, sd] = s.date.split('-');
+        const [sh, smin] = s.start.split(':');
+        const [eh, emin] = s.end.split(':');
+
+        const dtstart = `${sy}${sm}${sd}T${sh}${smin}00`;
+        const dtend = `${sy}${sm}${sd}T${eh}${emin}00`;
+
+        icsEvents += `BEGIN:VEVENT
+UID:${s.id}@albalog.app
+DTSTAMP:${nowStr}
+DTSTART;TZID=Asia/Seoul:${dtstart}
+DTEND;TZID=Asia/Seoul:${dtend}
+SUMMARY:[알바] ${wp.name} 근무 (${s.hours}시간)
+DESCRIPTION:시급: ${wp.rate.toLocaleString()}원
+예상 실수령액: ${s.wage.toLocaleString()}원
+입금 예정일: ${s.payday}
+메모: ${s.memo || '없음'}
+LOCATION:${wp.location || ''}
+STATUS:CONFIRMED
+END:VEVENT
+`;
+      });
+
+      const icsData = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AlbaLog//Smart Shift Planner//KO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:알바로그 근무 일정
+X-WR-TIMEZONE:Asia/Seoul
+${icsEvents}END:VCALENDAR`;
+
+      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.setAttribute('download', `albalog_shifts_${Date.now()}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function openDateDetail(dateStr) {
