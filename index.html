@@ -900,7 +900,7 @@
       <form id="form-workplace" onsubmit="saveWorkplace(event)">
         <div class="form-group">
           <label class="form-label" id="lbl-name">근무지명 / 알바명</label>
-          <input type="text" class="form-input" id="inp-name" placeholder="예: 카페 바리스타" required>
+          <input type="text" class="form-input" id="inp-name" placeholder="예: 메가커피 강남점" required>
         </div>
 
         <div class="form-group" id="group-location" style="display: none;">
@@ -1059,39 +1059,52 @@
     const DEFAULT_WORKPLACES = [
       {
         id: "wp_1",
-        type: "daily",
-        name: "코엑스 베이비페어",
-        rate: 12000,
+        type: "regular",
+        name: "메가커피 강남점",
+        rate: 10320,
         color: "#4F46E5",
-        location: "코엑스 전시홀 B",
+        location: "서울 강남구 테헤란로 (강남역 인근)",
+        payType: "monthly_15",
+        payTypeLabel: "매월 15일 입금",
+        memo: "주 3일 미들 타임"
+      },
+      {
+        id: "wp_2",
+        type: "daily",
+        name: "코엑스 행사알바",
+        rate: 12000,
+        color: "#059669",
+        location: "코엑스 전시장 B홀",
         payType: "same_day",
         payTypeLabel: "행사 당일 즉시 입금",
-        memo: "전시회 안내 및 단기 스태프"
+        memo: "전시회 안내 및 현장 지원"
       }
     ];
 
     const DEFAULT_SHIFTS = [
-      { id: "s1", workplaceId: "wp_1", date: "2026-11-13", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 1일차", payday: "2026-11-13", isSettled: true },
-      { id: "s2", workplaceId: "wp_1", date: "2026-11-14", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 2일차", payday: "2026-11-14", isSettled: true },
-      { id: "s3", workplaceId: "wp_1", date: "2026-11-15", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 3일차", payday: "2026-11-15", isSettled: false, isPayday: true }
+      { id: "s1", workplaceId: "wp_1", date: "2026-11-02", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: true },
+      { id: "s2", workplaceId: "wp_1", date: "2026-11-04", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: true },
+      { id: "s3", workplaceId: "wp_1", date: "2026-11-06", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: true },
+      { id: "s4", workplaceId: "wp_1", date: "2026-11-09", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: false },
+      { id: "s5", workplaceId: "wp_1", date: "2026-11-11", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: false },
+      { id: "s6", workplaceId: "wp_1", date: "2026-11-13", start: "09:00", end: "14:00", hours: 5, wage: 51600, memo: "오픈 미들", payday: "2026-11-15", isSettled: false },
+      { id: "s7", workplaceId: "wp_2", date: "2026-11-14", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 스태프 1일차", payday: "2026-11-14", isSettled: true },
+      { id: "s8", workplaceId: "wp_2", date: "2026-11-15", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 스태프 2일차", payday: "2026-11-15", isSettled: false, isPayday: true }
     ];
 
     let currentTab = 'home';
-    let storedWorkplaces = JSON.parse(localStorage.getItem('albalog_workplaces'));
-    let storedShifts = JSON.parse(localStorage.getItem('albalog_shifts'));
+    const SAMPLE_VERSION = 'v2_mega_coex';
+    let storedVersion = localStorage.getItem('albalog_sample_ver');
 
-    // 이전 샘플 데이터(GS25, 스터디센터) 자동 정제
-    if (storedWorkplaces && storedWorkplaces.some(w => w.name === 'GS25' || w.name === '스터디센터')) {
-      storedWorkplaces = storedWorkplaces.filter(w => w.name !== 'GS25' && w.name !== '스터디센터');
-      if (storedShifts) {
-        storedShifts = storedShifts.filter(s => s.workplaceId !== 'wp_1' && s.workplaceId !== 'wp_2');
-      }
-      localStorage.setItem('albalog_workplaces', JSON.stringify(storedWorkplaces));
-      localStorage.setItem('albalog_shifts', JSON.stringify(storedShifts));
+    // 메가커피 강남점 + 코엑스 행사알바 2개 예시로 자동 갱신
+    if (storedVersion !== SAMPLE_VERSION) {
+      localStorage.setItem('albalog_sample_ver', SAMPLE_VERSION);
+      localStorage.setItem('albalog_workplaces', JSON.stringify(DEFAULT_WORKPLACES));
+      localStorage.setItem('albalog_shifts', JSON.stringify(DEFAULT_SHIFTS));
     }
 
-    let workplaces = (storedWorkplaces && storedWorkplaces.length > 0) ? storedWorkplaces : DEFAULT_WORKPLACES;
-    let shifts = (storedShifts && storedShifts.length > 0) ? storedShifts : DEFAULT_SHIFTS;
+    let workplaces = JSON.parse(localStorage.getItem('albalog_workplaces')) || DEFAULT_WORKPLACES;
+    let shifts = JSON.parse(localStorage.getItem('albalog_shifts')) || DEFAULT_SHIFTS;
     let selectedYear = 2026;
     let selectedMonth = 11;
     let calViewMode = localStorage.getItem('albalog_cal_mode') || 'time_wage';
@@ -1541,13 +1554,13 @@
         document.getElementById('tab-type-regular').classList.add('active');
         document.getElementById('tab-type-daily').classList.remove('active');
         document.getElementById('lbl-name').innerText = '근무지명';
-        document.getElementById('inp-name').placeholder = '예: 카페 바리스타';
+        document.getElementById('inp-name').placeholder = '예: 메가커피 강남점';
         document.getElementById('group-location').style.display = 'none';
       } else {
         document.getElementById('tab-type-daily').classList.add('active');
         document.getElementById('tab-type-regular').classList.remove('active');
         document.getElementById('lbl-name').innerText = '행사명 / 알바명';
-        document.getElementById('inp-name').placeholder = '예: 코엑스 베이비페어 스태프';
+        document.getElementById('inp-name').placeholder = '예: 코엑스 행사알바';
         document.getElementById('group-location').style.display = 'block';
       }
     }
