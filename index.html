@@ -2531,8 +2531,8 @@ ${icsEvents}END:VCALENDAR`;
       const endTime = Date.now();
       const elapsedSec = Math.max(0, Math.floor((endTime - activeClock.startTime) / 1000));
       
-      // 초/분 단위까지 1원 단위로 정확하게 계산 (1분 = 시급 / 60)
-      const earnedWage = Math.round((elapsedSec / 3600) * wp.rate);
+      // 초/분 단위까지 1원 단위로 정확하게 계산 (실시간 배너와 1원까지 100% 동일하게 일치)
+      const earnedWage = Math.floor((elapsedSec / 3600) * wp.rate);
       const hours = Math.round((elapsedSec / 3600) * 100) / 100;
 
       const hrs = Math.floor(elapsedSec / 3600);
