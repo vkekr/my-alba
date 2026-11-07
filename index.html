@@ -872,7 +872,7 @@
       <form id="form-workplace" onsubmit="saveWorkplace(event)">
         <div class="form-group">
           <label class="form-label" id="lbl-name">근무지명 / 알바명</label>
-          <input type="text" class="form-input" id="inp-name" placeholder="예: GS25 평내호평점" required>
+          <input type="text" class="form-input" id="inp-name" placeholder="예: GS25 편의점" required>
         </div>
 
         <div class="form-group" id="group-location" style="display: none;">
@@ -992,7 +992,7 @@
         name: "GS25",
         rate: 10320,
         color: "#4F46E5",
-        location: "GS25 평내호평점",
+        location: "GS25 편의점",
         payType: "monthly_15",
         payTypeLabel: "매월 15일 입금",
         memo: "야간 및 주말 타임"
@@ -1003,7 +1003,7 @@
         name: "뉴클래스 학원",
         rate: 12000,
         color: "#059669",
-        location: "남양주시 호평동 학원가",
+        location: "스터디센터 학원가",
         payType: "monthly_10",
         payTypeLabel: "매월 10일 입금",
         memo: "중등부 수학 첨삭 조교"
@@ -1450,7 +1450,7 @@
         document.getElementById('tab-type-regular').classList.add('active');
         document.getElementById('tab-type-daily').classList.remove('active');
         document.getElementById('lbl-name').innerText = '근무지명';
-        document.getElementById('inp-name').placeholder = '예: GS25 평내호평점';
+        document.getElementById('inp-name').placeholder = '예: GS25 편의점';
         document.getElementById('group-location').style.display = 'none';
       } else {
         document.getElementById('tab-type-daily').classList.add('active');
