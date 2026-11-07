@@ -900,7 +900,7 @@
       <form id="form-workplace" onsubmit="saveWorkplace(event)">
         <div class="form-group">
           <label class="form-label" id="lbl-name">근무지명 / 알바명</label>
-          <input type="text" class="form-input" id="inp-name" placeholder="예: GS25 편의점" required>
+          <input type="text" class="form-input" id="inp-name" placeholder="예: 카페 바리스타" required>
         </div>
 
         <div class="form-group" id="group-location" style="display: none;">
@@ -1059,32 +1059,10 @@
     const DEFAULT_WORKPLACES = [
       {
         id: "wp_1",
-        type: "regular",
-        name: "GS25",
-        rate: 10320,
-        color: "#4F46E5",
-        location: "GS25 편의점",
-        payType: "monthly_15",
-        payTypeLabel: "매월 15일 입금",
-        memo: "야간 및 주말 타임"
-      },
-      {
-        id: "wp_2",
-        type: "regular",
-        name: "스터디센터",
-        rate: 12000,
-        color: "#059669",
-        location: "학원가 센터",
-        payType: "monthly_10",
-        payTypeLabel: "매월 10일 입금",
-        memo: "첨삭 조교"
-      },
-      {
-        id: "wp_3",
         type: "daily",
         name: "코엑스 베이비페어",
         rate: 12000,
-        color: "#D97706",
+        color: "#4F46E5",
         location: "코엑스 전시홀 B",
         payType: "same_day",
         payTypeLabel: "행사 당일 즉시 입금",
@@ -1093,23 +1071,27 @@
     ];
 
     const DEFAULT_SHIFTS = [
-      { id: "s1", workplaceId: "wp_1", date: "2026-11-11", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "정규 근무", payday: "2026-11-15", isSettled: true },
-      { id: "s2", workplaceId: "wp_1", date: "2026-11-12", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "정규 근무", payday: "2026-11-15", isSettled: true },
-      { id: "s3", workplaceId: "wp_3", date: "2026-11-13", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 1일차", payday: "2026-11-13", isSettled: true },
-      { id: "s4", workplaceId: "wp_3", date: "2026-11-14", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 2일차", payday: "2026-11-14", isSettled: true },
-      { id: "s5", workplaceId: "wp_3", date: "2026-11-15", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 3일차", payday: "2026-11-15", isSettled: false, isPayday: true },
-      { id: "s6", workplaceId: "wp_3", date: "2026-11-16", start: "18:00", end: "21:00", hours: 3, wage: 30960, memo: "철수 보조", payday: "2026-11-20", isSettled: false },
-      { id: "s7", workplaceId: "wp_1", date: "2026-11-17", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "정규 근무", payday: "2026-12-15", isSettled: false },
-      { id: "s8", workplaceId: "wp_1", date: "2026-11-18", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "정규 근무", payday: "2026-12-15", isSettled: false },
-      { id: "s9", workplaceId: "wp_3", date: "2026-11-19", start: "10:00", end: "18:00", hours: 8, wage: 82560, memo: "킨텍스 단기지원", payday: "2026-11-25", isSettled: false },
-      { id: "s10", workplaceId: "wp_1", date: "2026-11-24", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "대타 근무", payday: "2026-12-15", isSettled: false },
-      { id: "s11", workplaceId: "wp_1", date: "2026-11-25", start: "09:00", end: "16:00", hours: 7, wage: 72240, memo: "정규 근무", payday: "2026-12-15", isSettled: false },
-      { id: "s12", workplaceId: "wp_1", date: "2026-11-30", start: "00:00", end: "00:00", hours: 0, wage: -27540, memo: "소득세 공제", payday: "2026-11-30", isTax: true, isSettled: true }
+      { id: "s1", workplaceId: "wp_1", date: "2026-11-13", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 1일차", payday: "2026-11-13", isSettled: true },
+      { id: "s2", workplaceId: "wp_1", date: "2026-11-14", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 2일차", payday: "2026-11-14", isSettled: true },
+      { id: "s3", workplaceId: "wp_1", date: "2026-11-15", start: "09:00", end: "18:00", hours: 8, wage: 96000, memo: "행사 3일차", payday: "2026-11-15", isSettled: false, isPayday: true }
     ];
 
     let currentTab = 'home';
-    let workplaces = JSON.parse(localStorage.getItem('albalog_workplaces')) || DEFAULT_WORKPLACES;
-    let shifts = JSON.parse(localStorage.getItem('albalog_shifts')) || DEFAULT_SHIFTS;
+    let storedWorkplaces = JSON.parse(localStorage.getItem('albalog_workplaces'));
+    let storedShifts = JSON.parse(localStorage.getItem('albalog_shifts'));
+
+    // 이전 샘플 데이터(GS25, 스터디센터) 자동 정제
+    if (storedWorkplaces && storedWorkplaces.some(w => w.name === 'GS25' || w.name === '스터디센터')) {
+      storedWorkplaces = storedWorkplaces.filter(w => w.name !== 'GS25' && w.name !== '스터디센터');
+      if (storedShifts) {
+        storedShifts = storedShifts.filter(s => s.workplaceId !== 'wp_1' && s.workplaceId !== 'wp_2');
+      }
+      localStorage.setItem('albalog_workplaces', JSON.stringify(storedWorkplaces));
+      localStorage.setItem('albalog_shifts', JSON.stringify(storedShifts));
+    }
+
+    let workplaces = (storedWorkplaces && storedWorkplaces.length > 0) ? storedWorkplaces : DEFAULT_WORKPLACES;
+    let shifts = (storedShifts && storedShifts.length > 0) ? storedShifts : DEFAULT_SHIFTS;
     let selectedYear = 2026;
     let selectedMonth = 11;
     let calViewMode = localStorage.getItem('albalog_cal_mode') || 'time_wage';
@@ -1559,7 +1541,7 @@
         document.getElementById('tab-type-regular').classList.add('active');
         document.getElementById('tab-type-daily').classList.remove('active');
         document.getElementById('lbl-name').innerText = '근무지명';
-        document.getElementById('inp-name').placeholder = '예: GS25 편의점';
+        document.getElementById('inp-name').placeholder = '예: 카페 바리스타';
         document.getElementById('group-location').style.display = 'none';
       } else {
         document.getElementById('tab-type-daily').classList.add('active');
