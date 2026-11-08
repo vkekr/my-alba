@@ -1257,6 +1257,15 @@
           <input type="text" class="form-input" id="inp-location" placeholder="예: 코엑스 B홀 (서울 강남구 영동대로 513)">
         </div>
 
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">🎨 캘린더 표시 색상</label>
+            <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">근무지별 고유 색상</span>
+          </div>
+          <div id="add-wp-color-palette" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 4px 0;"></div>
+          <input type="hidden" id="inp-color" value="#F59E0B">
+        </div>
+
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
             <label class="form-label">시급 (원)</label>
@@ -1544,6 +1553,15 @@
             <label class="form-label">💵 기본 시급 (원)</label>
             <input type="number" class="form-input" id="edit-wp-rate" required min="10000" step="10">
           </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">🎨 캘린더 표시 색상</label>
+            <span style="font-size: 11.5px; color: #6366F1; font-weight: 700;">근무지별 고유 색상</span>
+          </div>
+          <div id="edit-wp-color-palette" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 4px 0;"></div>
+          <input type="hidden" id="edit-wp-color" value="#F59E0B">
         </div>
 
         <!-- 세금 공제 기본 설정 -->
@@ -1896,6 +1914,57 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
+    // --- WORKPLACE COLOR PALETTE & HELPER ---
+    const WORKPLACE_PALETTE = [
+      { color: '#F59E0B', label: '노랑 (메가커피)' },
+      { color: '#10B981', label: '초록 (뚜레쥬르)' },
+      { color: '#4F46E5', label: '파랑 (GS25)' },
+      { color: '#F97316', label: '코랄 (일일알바)' },
+      { color: '#8B5CF6', label: '보라' },
+      { color: '#EC4899', label: '핑크' },
+      { color: '#06B6D4', label: '청록' },
+      { color: '#EF4444', label: '빨강' }
+    ];
+
+    function hexToRgba(hex, alpha) {
+      if (!hex || hex[0] !== '#') return `rgba(79, 70, 229, ${alpha})`;
+      let s = hex.substring(1);
+      if (s.length === 3) s = s.split('').map(x => x + x).join('');
+      const num = parseInt(s, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function renderColorPalette(containerId, inputId, selectedColor) {
+      const container = document.getElementById(containerId);
+      const input = document.getElementById(inputId);
+      if (!container || !input) return;
+
+      const activeColor = selectedColor || input.value || '#F59E0B';
+      input.value = activeColor;
+
+      container.innerHTML = WORKPLACE_PALETTE.map(item => {
+        const isSelected = item.color.toLowerCase() === activeColor.toLowerCase();
+        return `
+          <div 
+            onclick="selectWorkplaceColor('${containerId}', '${inputId}', '${item.color}')"
+            title="${item.label}"
+            style="width: 32px; height: 32px; border-radius: 50%; background: ${item.color}; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: ${isSelected ? '0 0 0 3px #FFFFFF, 0 0 0 5px ' + item.color : '0 1px 3px rgba(0,0,0,0.15)'}; transform: ${isSelected ? 'scale(1.08)' : 'scale(1)'}; transition: all 0.15s ease;"
+          >
+            ${isSelected ? '<span style="color: #FFFFFF; font-size: 14px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">✓</span>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectWorkplaceColor(containerId, inputId, color) {
+      const input = document.getElementById(inputId);
+      if (input) input.value = color;
+      renderColorPalette(containerId, inputId, color);
+    }
+
 
     // Initial Data
     const DEFAULT_WORKPLACES = [
@@ -1904,7 +1973,7 @@
         type: "regular",
         name: "메가커피 강남점",
         rate: 10320,
-        color: "#4F46E5",
+        color: "#F59E0B",
         location: "서울 강남구 테헤란로 (강남역 인근)",
         payType: "monthly_15",
         payTypeLabel: "매월 15일 입금",
@@ -1915,7 +1984,7 @@
         type: "daily",
         name: "코엑스 행사알바",
         rate: 12000,
-        color: "#059669",
+        color: "#F97316",
         location: "코엑스 전시장 B홀",
         payType: "same_day",
         payTypeLabel: "행사 당일 즉시 입금",
@@ -2543,14 +2612,14 @@
     // 정기알바: [알바] 메가커피
     // 일일알바: [일일] 코엑스(위치)
     function formatShiftEventTitle(wp, shift) {
-      if (!wp) return (shift && shift.title) ? shift.title : '[알바] 근무';
+      if (!wp) return (shift && shift.title) ? shift.title : '[알바(정기)](근무장소)';
       const isDaily = (wp.type === 'daily');
       if (isDaily) {
-        const loc = (wp.location || (shift && shift.location) || '').trim();
-        const locSuffix = loc ? `(${loc})` : '';
-        return `[일일] ${wp.name}${locSuffix}`;
+        const loc = ((shift && shift.location) || wp.location || wp.name || '근무위치').trim();
+        return `[일일](${loc})`;
       } else {
-        return `[알바] ${wp.name}`;
+        const place = (wp.name || '근무장소').trim();
+        return `[알바(정기)](${place})`;
       }
     }
 
@@ -2658,27 +2727,46 @@
 
         let dayTotalWage = 0;
 
-        // If Payday mode or day has payday, show Payday alert chip first
-        if (paydaysLandingToday.length > 0 && (calViewMode === 'payday' || day === 15)) {
-          html += `<div class="cal-event-chip chip-payday">💰 입금일</div>`;
+        // 1. Payday Badge: 언제나 정산일에 눈에 확 띄는 에메랄드 그린/골드 뱃지로 표시 (근무일과 완벽 분리!)
+        if (paydaysLandingToday.length > 0) {
+          html += `
+            <div class="cal-event-chip" style="background: #ECFDF5; color: #047857; border: 1.5px solid #10B981; font-weight: 800; box-shadow: 0 1px 3px rgba(16,185,129,0.25);">
+              💰 입금일
+            </div>
+          `;
         }
 
-        // Show max 2 shift chips so cell height is never exceeded
+        // 2. Shift Chips: 근무지별 고유 색상 및 일일/정기 완벽 구분
         dayShifts.slice(0, 2).forEach(s => {
           dayTotalWage += s.wage;
           const wp = workplaces.find(w => w.id === s.workplaceId) || {};
-          let chipClass = 'chip-blue';
-          if (wp.type === 'daily') chipClass = 'chip-amber';
-          if (s.isPayday) chipClass = 'chip-payday';
-          if (s.isTax) chipClass = 'chip-tax';
+          const isDaily = (wp.type === 'daily');
+          const wpColor = wp.color || (isDaily ? '#F97316' : '#4F46E5');
 
           let text = `${s.hours}시간`;
-          if (calViewMode === 'loc_wage') text = wp.name || '알바';
-          else if (calViewMode === 'wage_only') text = `${Math.round(s.wage/1000)}k`;
-          else if (calViewMode === 'payday') text = s.isSettled ? '✅입금됨' : '⏳대기';
+          if (calViewMode === 'loc_wage') {
+            text = isDaily ? ((s.location || wp.location || wp.name || '일일').slice(0, 5)) : (wp.name || '알바').slice(0, 5);
+          } else if (calViewMode === 'wage_only') {
+            text = `${Math.round(s.wage/1000)}k`;
+          } else if (calViewMode === 'payday') {
+            text = s.isSettled ? '✅입금됨' : '⏳대기';
+          }
 
           if (s.isTax) text = '세금';
-          html += `<div class="cal-event-chip ${chipClass}">${text}</div>`;
+
+          if (isDaily) {
+            html += `
+              <div class="cal-event-chip" style="background: ${hexToRgba(wpColor, 0.16)}; color: ${wpColor}; border: 1.5px solid ${wpColor}; font-weight: 800;" title="${wp.name} (일일알바)">
+                [일일]${text}
+              </div>
+            `;
+          } else {
+            html += `
+              <div class="cal-event-chip" style="background: ${hexToRgba(wpColor, 0.14)}; color: ${wpColor}; border: 1px solid ${hexToRgba(wpColor, 0.5)}; font-weight: 800;" title="${wp.name} (정기알바)">
+                ${text}
+              </div>
+            `;
+          }
         });
 
         // Add remaining count if > 2
@@ -2723,23 +2811,41 @@
       html += `
         </div>
 
-        <div class="sync-banner" style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div class="sync-banner" style="flex-direction: column; align-items: stretch; gap: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div class="sync-banner-text">
               <div class="sync-banner-icon"></div>
               <div>
-                <div class="sync-banner-title">애플 캘린더 일괄 동기화</div>
-                <div class="sync-banner-sub">근무 일정 + 정산일까지 한 번에 내보내요</div>
+                <div class="sync-banner-title" style="font-size: 15px; font-weight: 800; color: #1E293B;">애플 캘린더(.ics) 맞춤 동기화</div>
+                <div class="sync-banner-sub" style="font-size: 12px; color: #64748B;">근무일과 급여일을 색상별로 구분해 내보내요</div>
               </div>
             </div>
-            <button class="btn-sync-action" onclick="exportMonthToAppleCalendar()">동기화 (.ics)</button>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.25); font-size: 11.5px; color: #E0E7FF;">
+
+          <!-- 3 Quick Export Options -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button type="button" class="btn-sync-action" style="padding: 10px 8px; font-size: 12.5px; background: #4F46E5; color: #FFFFFF; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(79,70,229,0.25);" onclick="exportMonthShiftsOnly()">
+              📅 근무 일정만 (.ics)
+            </button>
+            <button type="button" class="btn-sync-action" style="padding: 10px 8px; font-size: 12.5px; background: #059669; color: #FFFFFF; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(5,150,105,0.25);" onclick="exportMonthPaydaysOnly()">
+              💰 급여·정산일만 (.ics)
+            </button>
+          </div>
+          <button type="button" style="width: 100%; padding: 10px; font-size: 12px; font-weight: 700; background: #F8FAFC; color: #334155; border: 1.5px solid #CBD5E1; border-radius: 10px; cursor: pointer;" onclick="exportMonthToAppleCalendar()">
+            ⚡️ 근무 + 급여일 한 번에 전체 내보내기 (.ics)
+          </button>
+
+          <!-- Tip: Why separate colors in Apple Calendar -->
+          <div style="background: #F1F5F9; border-radius: 10px; padding: 10px 12px; font-size: 11.5px; color: #475569; line-height: 1.5; border: 1px solid #E2E8F0;">
+            💡 <strong>아이폰 색상 구분 꿀팁</strong>: 아이폰 캘린더에서 '근무 일정'과 '급여·정산일'을 각각 다운로드해 별도 캘린더로 추가하시면, 아이폰 화면에서도 <strong>근무일(파랑)과 급여일(초록)</strong> 색상이 완벽히 분리되어 전혀 헷갈리지 않아요!
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; font-size: 11.5px; color: #64748B;">
             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
-              <input type="checkbox" id="sync-include-month-tax" checked onchange="saveCalPreference()" style="width: 16px; height: 16px; accent-color: #FBBF24; cursor: pointer;">
+              <input type="checkbox" id="sync-include-month-tax" checked onchange="saveCalPreference()" style="width: 16px; height: 16px; accent-color: #4F46E5; cursor: pointer;">
               <span>매월 말일 세금 정산(${monthTotalTax > 0 ? '-' + monthTotalTax.toLocaleString() + '원' : '일정'}) 포함하기</span>
             </label>
-            <span style="font-size: 10.5px; color: #C7D2FE;">선택 사항</span>
+            <span style="font-size: 10.5px; color: #94A3B8;">선택 사항</span>
           </div>
         </div>
       `;
@@ -2891,6 +2997,7 @@
     function openAddWorkplaceModal(forceType) {
       document.getElementById('modal-add-workplace').classList.add('active');
       setTypeTab(forceType || 'regular');
+      renderColorPalette('add-wp-color-palette', 'inp-color', (forceType === 'daily') ? '#F97316' : '#F59E0B');
     }
 
     function setTypeTab(type) {
@@ -2901,12 +3008,14 @@
         document.getElementById('lbl-name').innerText = '근무지명';
         document.getElementById('inp-name').placeholder = '예: 메가커피 강남점';
         document.getElementById('group-location').style.display = 'none';
+        renderColorPalette('add-wp-color-palette', 'inp-color', '#F59E0B');
       } else {
         document.getElementById('tab-type-daily').classList.add('active');
         document.getElementById('tab-type-regular').classList.remove('active');
         document.getElementById('lbl-name').innerText = '행사명 / 알바명';
         document.getElementById('inp-name').placeholder = '예: 코엑스 행사알바';
         document.getElementById('group-location').style.display = 'block';
+        renderColorPalette('add-wp-color-palette', 'inp-color', '#F97316');
       }
     }
 
@@ -2920,12 +3029,13 @@
       const payTypeLabel = formatPaydayLabel(payDay);
       const memo = document.getElementById('inp-memo').value;
 
+      const pickedColor = document.getElementById('inp-color')?.value || (currentModalType === 'daily' ? '#F97316' : '#F59E0B');
       const newWp = {
         id: "wp_" + Date.now(),
         type: currentModalType,
         name,
         rate,
-        color: currentModalType === 'daily' ? '#D97706' : '#4F46E5',
+        color: pickedColor,
         location,
         payDay: payDay,
         payType: payDay,
@@ -3296,9 +3406,9 @@
         events.push({
           id: `payday_${group.workplaceId}_${group.payday}`,
           date: group.payday,
-          start: "10:00",
-          end: "10:30",
-          title: `💰 [정산일] ${wp.name} (총 ₩ ${group.totalWage.toLocaleString()})`,
+          isAllDay: true,
+          category: '알바급여입금',
+          title: `💰 [급여입금일] ${wp.name} (총 ₩ ${group.totalWage.toLocaleString()})`,
           location: "내 계좌",
           description: `${wp.name} 알바비 총 ${group.shiftCount}일치 정산\n근무일: ${sortedDates}\n입금 예정 총액: ${group.totalWage.toLocaleString()}원`
         });
@@ -3427,6 +3537,7 @@
 
       let currentTax = wp.defaultTaxType || (hasTax33 ? '3.3' : (hasTaxFour ? 'four_ins' : 'none'));
       setEditWpTax(currentTax);
+      renderColorPalette('edit-wp-color-palette', 'edit-wp-color', wp.color || (wp.type === 'daily' ? '#F97316' : '#F59E0B'));
 
       openModal('modal-edit-workplace');
     }
@@ -3506,9 +3617,11 @@
       const memo = memoEl ? memoEl.value.trim() : '';
       const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
 
+      const pickedColor = document.getElementById('edit-wp-color')?.value || wp.color || '#F59E0B';
       wp.name = name;
       wp.type = type;
       wp.rate = rate;
+      wp.color = pickedColor;
       wp.payDay = payDay;
       wp.payType = payDay;
       wp.payTypeLabel = payTypeLabel;
@@ -4246,22 +4359,47 @@
       ];
 
       eventList.forEach(ev => {
-        const startStr = formatIcsDate(ev.date, ev.start);
-        const endStr = formatIcsDate(ev.date, ev.end);
-        const summary = ev.title.startsWith('[') ? ev.title : `[${targetCal}] ${ev.title}`;
+        const isAllDay = ev.isAllDay || ev.allDay;
+        const summary = ev.title;
+        const category = ev.category || targetCal;
 
-        ics.push(
-          "BEGIN:VEVENT",
-          `UID:${ev.id}@albalog.app`,
-          `DTSTAMP:${nowStr}`,
-          `DTSTART;TZID=Asia/Seoul:${startStr}`,
-          `DTEND;TZID=Asia/Seoul:${endStr}`,
-          `SUMMARY:${summary}`,
-          `LOCATION:${ev.location || ''}`,
-          `DESCRIPTION:${ev.description || ''}`,
-          `CATEGORIES:${targetCal}`,
-          "STATUS:CONFIRMED"
-        );
+        if (isAllDay) {
+          const [y, m, d] = ev.date.split('-');
+          const dtStr = `${y}${m}${d}`;
+          const nextD = new Date(parseInt(y), parseInt(m)-1, parseInt(d)+1);
+          const endDtStr = `${nextD.getFullYear()}${String(nextD.getMonth()+1).padStart(2,'0')}${String(nextD.getDate()).padStart(2,'0')}`;
+
+          ics.push(
+            "BEGIN:VEVENT",
+            `UID:${ev.id}@albalog.app`,
+            `DTSTAMP:${nowStr}`,
+            `DTSTART;VALUE=DATE:${dtStr}`,
+            `DTEND;VALUE=DATE:${endDtStr}`,
+            `SUMMARY:${summary}`,
+            `LOCATION:${ev.location || ''}`,
+            `DESCRIPTION:${ev.description || ''}`,
+            `CATEGORIES:${category}`,
+            "X-APPLE-ALL-DAY:TRUE",
+            "TRANSP:TRANSPARENT",
+            "STATUS:CONFIRMED",
+            "END:VEVENT"
+          );
+        } else {
+          const startStr = formatIcsDate(ev.date, ev.start);
+          const endStr = formatIcsDate(ev.date, ev.end);
+
+          ics.push(
+            "BEGIN:VEVENT",
+            `UID:${ev.id}@albalog.app`,
+            `DTSTAMP:${nowStr}`,
+            `DTSTART;TZID=Asia/Seoul:${startStr}`,
+            `DTEND;TZID=Asia/Seoul:${endStr}`,
+            `SUMMARY:${summary}`,
+            `LOCATION:${ev.location || ''}`,
+            `DESCRIPTION:${ev.description || ''}`,
+            `CATEGORIES:${category}`,
+            "STATUS:CONFIRMED"
+          );
 
         if (targetAlarm && targetAlarm !== 'none') {
           const alarmM = parseInt(targetAlarm) || 30;
@@ -4313,9 +4451,9 @@
         events.push({
           id: shift.id + "_payday",
           date: shift.payday,
-          start: "10:00",
-          end: "10:30",
-          title: `💰 [알바비 입금일] ${wp.name} (${shift.wage.toLocaleString()}원)`,
+          isAllDay: true,
+          category: '알바급여입금',
+          title: `💰 [급여입금일] ${wp.name} (${shift.wage.toLocaleString()}원)`,
           location: "내 계좌",
           description: `${shift.date} 근무분 알바비 ${shift.wage.toLocaleString()}원 입금 확인 필요`
         });
@@ -4422,6 +4560,110 @@
       const alarmMins = getSelectedAlarmMins();
       const ics = generateIcs(events, calName, alarmMins);
       downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_전체일정및정산.ics`, ics);
+    }
+
+
+    function exportMonthShiftsOnly() {
+      const currentMonthShifts = shifts.filter(s => {
+        const [y, m] = s.date.split('-');
+        return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
+      });
+
+      if (currentMonthShifts.length === 0) {
+        showToast("동기화할 근무 일정이 없습니다.");
+        return;
+      }
+
+      const events = [];
+      currentMonthShifts.forEach(s => {
+        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
+        const shiftTitle = formatShiftEventTitle(wp, s);
+        events.push({
+          id: s.id,
+          date: s.date,
+          start: s.start || '09:00',
+          end: s.end || '16:00',
+          title: shiftTitle,
+          location: wp.location || wp.name,
+          category: '알바근무',
+          description: `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`
+        });
+      });
+
+      const alarmMins = getSelectedAlarmMins();
+      const ics = generateIcs(events, '알바근무', alarmMins);
+      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_근무일정.ics`, ics);
+    }
+
+    function exportMonthPaydaysOnly() {
+      const currentMonthShifts = shifts.filter(s => {
+        const [y, m] = s.date.split('-');
+        return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
+      });
+
+      const paydayGroups = {};
+      currentMonthShifts.forEach(s => {
+        if (s.payday) {
+          const pKey = `${s.workplaceId}_${s.payday}`;
+          if (!paydayGroups[pKey]) {
+            paydayGroups[pKey] = {
+              workplaceId: s.workplaceId,
+              payday: s.payday,
+              totalWage: 0,
+              shiftCount: 0,
+              shiftDates: []
+            };
+          }
+          paydayGroups[pKey].totalWage += s.wage;
+          paydayGroups[pKey].shiftCount += 1;
+          paydayGroups[pKey].shiftDates.push(s.date);
+        }
+      });
+
+      const events = [];
+      Object.values(paydayGroups).forEach(group => {
+        const wp = workplaces.find(w => w.id === group.workplaceId) || { name: '알바' };
+        const sortedDates = group.shiftDates.sort().map(d => {
+          const parts = d.split('-');
+          return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+        }).join(', ');
+
+        events.push({
+          id: `payday_${group.workplaceId}_${group.payday}`,
+          date: group.payday,
+          isAllDay: true,
+          category: '알바급여입금',
+          title: `💰 [급여입금일] ${wp.name} (총 ₩ ${group.totalWage.toLocaleString()})`,
+          location: "내 계좌",
+          description: `${wp.name} 알바비 총 ${group.shiftCount}일치 정산\n근무일: ${sortedDates}\n입금 예정 총액: ${group.totalWage.toLocaleString()}원`
+        });
+      });
+
+      if (events.length === 0) {
+        showToast("동기화할 급여/정산일 일정이 없습니다.");
+        return;
+      }
+
+      const ics = generateIcs(events, '알바급여입금', 'none');
+      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_급여입금일.ics`, ics);
+    }
+
+    // Auto-migrate existing workplace colors if not customized
+    if (workplaces && workplaces.length > 0) {
+      let migrated = false;
+      workplaces.forEach(w => {
+        if (w.name.includes('메가') && (!w.color || w.color === '#4F46E5')) {
+          w.color = '#F59E0B'; // 노란색
+          migrated = true;
+        } else if (w.name.includes('뚜레') && (!w.color || w.color === '#4F46E5')) {
+          w.color = '#10B981'; // 초록색
+          migrated = true;
+        } else if (w.type === 'daily' && (!w.color || w.color === '#D97706' || w.color === '#059669')) {
+          w.color = '#F97316'; // 일일알바 코랄오렌지
+          migrated = true;
+        }
+      });
+      if (migrated) saveState();
     }
 
     // Init
