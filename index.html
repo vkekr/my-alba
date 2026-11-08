@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.9.3</span>
+            <span class="brand-tag">v2.9.4</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1842,7 +1842,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.3)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.4)
         </p>
       </div>
 
@@ -1851,7 +1851,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.3</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.4</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -3698,70 +3698,66 @@
 
     function saveEditedWorkplace(e) {
       e.preventDefault();
-      const wpId = document.getElementById('edit-wp-id').value;
-      const wp = workplaces.find(w => w.id === wpId);
-      if (!wp) return;
+      try {
+        const wpId = document.getElementById('edit-wp-id').value;
+        const wp = workplaces.find(w => w.id === wpId);
+        if (!wp) return;
 
-      const name = document.getElementById('edit-wp-name').value.trim();
-      const type = document.getElementById('edit-wp-type').value;
-      const rate = parseInt(document.getElementById('edit-wp-rate').value) || 10320;
-      const payDayEl = document.getElementById('edit-wp-pay-day-select');
-      const payDay = payDayEl ? payDayEl.value : '15';
-      const payTypeLabel = formatPaydayLabel(payDay);
-      const location = document.getElementById('edit-wp-location').value.trim();
-      const managerPhone = document.getElementById('edit-wp-manager-phone')?.value.trim() || '';
-      const memoEl = document.getElementById('edit-wp-memo');
-      const memo = memoEl ? memoEl.value.trim() : '';
-      const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
+        const name = document.getElementById('edit-wp-name').value.trim();
+        const type = document.getElementById('edit-wp-type').value;
+        const rate = parseInt(document.getElementById('edit-wp-rate').value) || 10320;
+        const payDayEl = document.getElementById('edit-wp-pay-day-select');
+        const payDay = payDayEl ? payDayEl.value : '15';
+        const payTypeLabel = formatPaydayLabel(payDay);
+        const location = document.getElementById('edit-wp-location').value.trim();
+        const managerPhone = document.getElementById('edit-wp-manager-phone')?.value.trim() || '';
+        const memoEl = document.getElementById('edit-wp-memo');
+        const memo = memoEl ? memoEl.value.trim() : '';
+        const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
 
-      const pickedColor = document.getElementById('edit-wp-color')?.value || wp.color || '#F59E0B';
-      wp.name = name;
-      wp.type = type;
-      wp.rate = rate;
-      wp.color = pickedColor;
-      wp.payDay = payDay;
-      wp.payType = payDay;
-      wp.payTypeLabel = payTypeLabel;
-      wp.location = location;
-      wp.managerPhone = managerPhone;
-      wp.memo = memo;
-      wp.defaultTaxType = editWpTaxType;
+        const pickedColor = document.getElementById('edit-wp-color')?.value || wp.color || '#F59E0B';
+        wp.name = name;
+        wp.type = type;
+        wp.rate = rate;
+        wp.color = pickedColor;
+        wp.payDay = payDay;
+        wp.payType = payDay;
+        wp.payTypeLabel = payTypeLabel;
+        wp.location = location;
+        wp.managerPhone = managerPhone;
+        wp.memo = memo;
+        wp.defaultTaxType = editWpTaxType;
 
-      const payLabels = {
-        monthly_15: '매월 15일 입금',
-        monthly_10: '매월 10일 입금',
-        monthly_last: '매월 말일 입금',
-        same_day: '당일 즉시 입금',
-        next_day: '익일 입금'
-      };
-      wp.payTypeLabel = payLabels[payType] || '매월 15일 입금';
-
-      // If applyAll is checked, recalculate all existing shifts for this workplace
-      if (applyAll) {
-        shifts.forEach(s => {
-          if (s.workplaceId === wpId) {
-            const gross = Math.round(s.hours * rate);
-            s.grossWage = gross;
-            s.taxType = editWpTaxType;
-            if (editWpTaxType === '3.3') {
-              s.taxAmount = Math.floor(gross * 0.033);
-            } else if (editWpTaxType === 'four_ins') {
-              s.taxAmount = Math.floor(gross * 0.094);
-            } else {
-              s.taxAmount = 0;
+        // If applyAll is checked, recalculate all existing shifts for this workplace
+        if (applyAll) {
+          shifts.forEach(s => {
+            if (s.workplaceId === wpId) {
+              const gross = Math.round(s.hours * rate);
+              s.grossWage = gross;
+              s.taxType = editWpTaxType;
+              if (editWpTaxType === '3.3') {
+                s.taxAmount = Math.floor(gross * 0.033);
+              } else if (editWpTaxType === 'four_ins') {
+                s.taxAmount = Math.floor(gross * 0.094);
+              } else {
+                s.taxAmount = 0;
+              }
+              s.wage = gross - s.taxAmount;
             }
-            s.wage = gross - s.taxAmount;
-          }
-        });
+          });
+        }
+
+        saveState();
+        closeModal('modal-edit-workplace');
+        showToast(`🎉 '${name}' 근무지 정보가 저장되었습니다!`);
+
+        if (currentTab === 'home') renderHome(document.getElementById('main-view'));
+        if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
+        if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
+      } catch (err) {
+        console.error("근무지 수정 저장 오류:", err);
+        showToast("수정 저장 중 오류: " + err.message);
       }
-
-      saveState();
-      closeModal('modal-edit-workplace');
-      showToast(`🎉 '${name}' 근무지 및 세금/시급 정보가 저장되었습니다!`);
-
-      if (currentTab === 'home') renderHome(document.getElementById('main-view'));
-      if (currentTab === 'cal') renderCalendar(document.getElementById('main-view'));
-      if (currentTab === 'gigs') renderGigs(document.getElementById('main-view'));
     }
 
     function openEditShiftModal(shiftId) {
