@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.9.0</span>
+            <span class="brand-tag">v2.9.1</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1316,9 +1316,14 @@
           </div>
         </div>
 
+        <div class="form-group" id="group-manager-phone">
+          <label class="form-label">👤 담당자 연락처 (선택)</label>
+          <input type="tel" class="form-input" id="inp-manager-phone" placeholder="예: 010-1234-5678 (팀장님)">
+        </div>
+
         <div class="form-group" id="group-memo">
-          <label class="form-label">메모 (복장, 준비물, 담당자 등)</label>
-          <textarea class="form-textarea" id="inp-memo" rows="2" placeholder="예: 단정한 복장, 담당자 연락처: 010-XXXX-XXXX"></textarea>
+          <label class="form-label">📝 근무지 메모 (준비물·복장 등)</label>
+          <textarea class="form-textarea" id="inp-memo" rows="2" placeholder="예: 단정한 복장, 신분증 지참, 보건증 필수"></textarea>
         </div>
 
         <button type="submit" class="btn-submit">등록 완료</button>
@@ -1449,10 +1454,15 @@
           </div>
         </div>
 
-        <!-- 7. 메모 -->
+        <!-- 7. 담당자 연락처 & 근무 메모 (분리 탑재!) -->
         <div class="form-group">
-          <label class="form-label">📝 근무 메모</label>
-          <input type="text" class="form-input" id="shift-memo" placeholder="예: 미들 파트, 행사 지원 등">
+          <label class="form-label">👤 담당자 연락처 (선택)</label>
+          <input type="tel" class="form-input" id="shift-manager-phone" placeholder="예: 010-1234-5678 (팀장님)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📝 근무 메모 (준비물·복장 등)</label>
+          <input type="text" class="form-input" id="shift-memo" placeholder="예: 단정한 복장, 신분증 지참, 9번 출구 집합">
         </div>
 
         <!-- 8. 애플 캘린더 동기화 & 옵션 -->
@@ -1644,8 +1654,13 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">📝 근무지 메모 (복장, 준비물, 담당자 등)</label>
-          <textarea class="form-textarea" id="edit-wp-memo" rows="2" placeholder="예: 단정한 복장, 담당자 연락처: 010-XXXX-XXXX"></textarea>
+          <label class="form-label">👤 담당자 연락처 (선택)</label>
+          <input type="tel" class="form-input" id="edit-wp-manager-phone" placeholder="예: 010-1234-5678 (팀장님)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📝 근무지 메모 (준비물·복장 등)</label>
+          <textarea class="form-textarea" id="edit-wp-memo" rows="2" placeholder="예: 단정한 복장, 신분증 지참, 보건증 필수"></textarea>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 14px;">
@@ -1746,10 +1761,15 @@
           </div>
         </div>
 
-        <!-- 6. 메모 -->
+        <!-- 6. 담당자 연락처 & 근무 메모 (분리 탑재!) -->
         <div class="form-group">
-          <label class="form-label">📝 근무 메모</label>
-          <input type="text" class="form-input" id="edit-shift-memo" placeholder="예: 미들 파트, 행사 지원 등">
+          <label class="form-label">👤 담당자 연락처 (선택)</label>
+          <input type="tel" class="form-input" id="edit-shift-manager-phone" placeholder="예: 010-1234-5678 (팀장님)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📝 근무 메모 (준비물·복장 등)</label>
+          <input type="text" class="form-input" id="edit-shift-memo" placeholder="예: 단정한 복장, 신분증 지참, 9번 출구 집합">
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 14px;">
@@ -1822,7 +1842,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.0)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.1)
         </p>
       </div>
 
@@ -1831,7 +1851,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.0</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.1</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2941,7 +2961,13 @@
                 <span style="color: #4F46E5; font-weight: 700;">입금일: ${s.payday || '당일'}</span>
               </div>
 
-              ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-bottom: 10px;">📝 ${s.memo}</div>` : ''}
+              ${(s.managerPhone || wp.managerPhone) ? `
+                <div style="font-size: 12px; color: #4338CA; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; background: #EEF2FF; padding: 5px 10px; border-radius: 8px;">
+                  <span>👤 담당자: ${escapeHtml(s.managerPhone || wp.managerPhone)}</span>
+                  <a href="tel:${(s.managerPhone || wp.managerPhone).replace(/[^0-9]/g, '')}" style="color: #4F46E5; text-decoration: none; font-size: 11px; padding: 2px 6px; background: #fff; border: 1px solid #C7D2FE; border-radius: 4px;">📞 전화</a>
+                </div>
+              ` : ''}
+              ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-bottom: 10px;">📝 ${escapeHtml(s.memo)}</div>` : ''}
 
               <div class="gig-btn-row">
                 <button class="btn-action btn-add" onclick="exportSingleShiftToAppleCalendarById('${s.id}')">
@@ -3027,6 +3053,7 @@
       const payDayEl = document.getElementById('inp-pay-day-select');
       const payDay = payDayEl ? payDayEl.value : '15';
       const payTypeLabel = formatPaydayLabel(payDay);
+      const managerPhone = document.getElementById('inp-manager-phone')?.value.trim() || '';
       const memo = document.getElementById('inp-memo').value;
 
       const pickedColor = document.getElementById('inp-color')?.value || (currentModalType === 'daily' ? '#F97316' : '#F59E0B');
@@ -3040,6 +3067,7 @@
         payDay: payDay,
         payType: payDay,
         payTypeLabel: payTypeLabel,
+        managerPhone,
         memo
       };
 
@@ -3175,6 +3203,10 @@
       if (wp) {
         const baseDate = selectedShiftDates[0] || '2026-11-01';
         document.getElementById('shift-payday').value = calculatePaydayForWorkplace(wp, baseDate);
+        const phoneEl = document.getElementById('shift-manager-phone');
+        if (phoneEl && wp.managerPhone && !phoneEl.value) {
+          phoneEl.value = wp.managerPhone;
+        }
       }
       updateWageCalculation();
     }
@@ -3273,6 +3305,12 @@
       }
 
       setShiftTaxType('none');
+      if (document.getElementById('shift-manager-phone')) {
+        document.getElementById('shift-manager-phone').value = '';
+      }
+      if (document.getElementById('shift-memo')) {
+        document.getElementById('shift-memo').value = '';
+      }
       renderMiniCalendar();
       onShiftWorkplaceChange();
       document.getElementById('modal-add-shift').classList.add('active');
@@ -3290,6 +3328,7 @@
       const end = document.getElementById('shift-end').value;
       const breakMins = parseInt(document.getElementById('shift-break').value) || 0;
       const userPayday = document.getElementById('shift-payday').value;
+      const managerPhone = document.getElementById('shift-manager-phone')?.value.trim() || '';
       const memo = document.getElementById('shift-memo').value;
       const syncApple = document.getElementById('shift-sync-apple').checked;
 
@@ -3333,6 +3372,7 @@
           taxAmount: calc.taxAmount,
           wage: calc.netWage,
           payday,
+          managerPhone,
           memo,
           isSettled: false
         };
@@ -3368,6 +3408,11 @@
 
       shiftList.forEach(s => {
         const shiftTitle = formatShiftEventTitle(wp, s);
+        let desc = `근무시간: ${s.hours}시간\n예상 실수령액: ${s.wage.toLocaleString()}원\n시급: ${wp.rate.toLocaleString()}원\n입금 예정일: ${s.payday}`;
+        const contact = s.managerPhone || wp.managerPhone;
+        if (contact) desc += `\n담당자 연락처: ${contact}`;
+        if (s.memo) desc += `\n메모: ${s.memo}`;
+
         events.push({
           id: s.id,
           date: s.date,
@@ -3375,7 +3420,8 @@
           end: s.end || '16:00',
           title: shiftTitle,
           location: wp.location || wp.name,
-          description: `근무시간: ${s.hours}시간\n예상 실수령액: ${s.wage.toLocaleString()}원\n시급: ${wp.rate.toLocaleString()}원\n입금 예정일: ${s.payday}\n메모: ${s.memo || '없음'}`
+          category: '알바근무',
+          description: desc
         });
 
         // Group settlement by (workplaceId, payday) so each workplace gets only ONE settlement event
@@ -3468,6 +3514,7 @@
       } else {
         dayShifts.forEach(s => {
           const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320 };
+          const contact = s.managerPhone || wp.managerPhone || '';
           h += `
             <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; margin-bottom: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -3477,8 +3524,14 @@
               <div style="font-size: 12.5px; color: #64748B;">
                 ⏰ ${s.start} ~ ${s.end} (${s.hours}시간) · 💳 입금일: ${s.payday || '당일'}
               </div>
-              ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-top: 4px;">📝 ${s.memo}</div>` : ''}
-              <div style="display: flex; gap: 8px; margin-top: 8px;">
+              ${contact ? `
+                <div style="margin-top: 8px; padding: 6px 10px; background: #EEF2FF; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 12px;">
+                  <span style="color: #4338CA; font-weight: 700;">👤 담당자: ${escapeHtml(contact)}</span>
+                  <a href="tel:${contact.replace(/[^0-9]/g, '')}" style="color: #4F46E5; font-weight: 800; text-decoration: none; padding: 2px 8px; background: #FFFFFF; border-radius: 6px; border: 1px solid #C7D2FE; font-size: 11px;">📞 전화</a>
+                </div>
+              ` : ''}
+              ${s.memo ? `<div style="font-size: 12px; color: #475569; margin-top: 6px;">📝 <strong>메모:</strong> ${escapeHtml(s.memo)}</div>` : ''}
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
                 <button style="flex: 1; padding: 7px 10px; font-size: 12.5px; font-weight: 700; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #C7D2FE; border-radius: 8px; cursor: pointer;" onclick="openEditShiftModal('${s.id}')">
                   ✏️ 수정 (세금/시간)
                 </button>
@@ -3528,6 +3581,8 @@
         payDaySel.value = val;
       }
       document.getElementById('edit-wp-location').value = wp.location || '';
+      const phoneEl = document.getElementById('edit-wp-manager-phone');
+      if (phoneEl) phoneEl.value = wp.managerPhone || '';
       const memoEl = document.getElementById('edit-wp-memo');
       if (memoEl) memoEl.value = wp.memo || '';
 
@@ -3613,6 +3668,7 @@
       const payDay = payDayEl ? payDayEl.value : '15';
       const payTypeLabel = formatPaydayLabel(payDay);
       const location = document.getElementById('edit-wp-location').value.trim();
+      const managerPhone = document.getElementById('edit-wp-manager-phone')?.value.trim() || '';
       const memoEl = document.getElementById('edit-wp-memo');
       const memo = memoEl ? memoEl.value.trim() : '';
       const applyAll = document.getElementById('edit-wp-apply-all-shifts').checked;
@@ -3626,6 +3682,7 @@
       wp.payType = payDay;
       wp.payTypeLabel = payTypeLabel;
       wp.location = location;
+      wp.managerPhone = managerPhone;
       wp.memo = memo;
       wp.defaultTaxType = editWpTaxType;
 
@@ -3680,6 +3737,8 @@
       document.getElementById('edit-shift-end').value = shift.end || '16:00';
       document.getElementById('edit-shift-break').value = shift.breakMins || 0;
       document.getElementById('edit-shift-payday').value = shift.payday || shift.date;
+      const editPhoneEl = document.getElementById('edit-shift-manager-phone');
+      if (editPhoneEl) editPhoneEl.value = shift.managerPhone || '';
       document.getElementById('edit-shift-memo').value = shift.memo || '';
 
       const initialTax = shift.taxType || (shift.taxAmount > 0 ? '3.3' : 'none');
@@ -3764,6 +3823,7 @@
       const end = document.getElementById('edit-shift-end').value;
       const breakMins = parseInt(document.getElementById('edit-shift-break').value) || 0;
       const payday = document.getElementById('edit-shift-payday').value || date;
+      const managerPhone = document.getElementById('edit-shift-manager-phone')?.value.trim() || '';
       const memo = document.getElementById('edit-shift-memo').value;
 
       const calc = updateEditWageCalculation();
@@ -3779,6 +3839,7 @@
       shift.taxAmount = calc.taxAmount;
       shift.wage = calc.netWage;
       shift.payday = payday;
+      shift.managerPhone = managerPhone;
       shift.memo = memo;
 
       saveState();
@@ -4436,6 +4497,11 @@
 
     function exportSingleShiftToAppleCalendar(shift, wp) {
       const shiftTitle = formatShiftEventTitle(wp, shift);
+      let desc = `근무시간: ${shift.hours}시간\n예상일당: ${shift.wage.toLocaleString()}원\n입금예정일: ${shift.payday || '당일'}`;
+      const contact = shift.managerPhone || wp.managerPhone;
+      if (contact) desc += `\n담당자 연락처: ${contact}`;
+      if (shift.memo) desc += `\n메모: ${shift.memo}`;
+
       const events = [
         {
           id: shift.id,
@@ -4444,7 +4510,8 @@
           end: shift.end || '16:00',
           title: shiftTitle,
           location: wp.location || wp.name,
-          description: `근무시간: ${shift.hours}시간\n예상일당: ${shift.wage.toLocaleString()}원\n입금예정일: ${shift.payday || '당일'}\n메모: ${shift.memo || '없음'}`
+          category: '알바근무',
+          description: desc
         }
       ];
 
@@ -4472,128 +4539,150 @@
     }
 
     function exportMonthToAppleCalendar() {
-      const currentMonthShifts = shifts.filter(s => {
-        const [y, m] = s.date.split('-');
-        return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
-      });
-
-      if (currentMonthShifts.length === 0) {
-        showToast("동기화할 근무 일정이 없습니다.");
-        return;
-      }
-
-      const events = [];
-      const paydayGroups = {};
-
-      currentMonthShifts.forEach(s => {
-        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
-        const shiftTitle = formatShiftEventTitle(wp, s);
-        events.push({
-          id: s.id,
-          date: s.date,
-          start: s.start || '09:00',
-          end: s.end || '16:00',
-          title: shiftTitle,
-          location: wp.location || wp.name,
-          description: `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`
+      try {
+        const currentMonthShifts = shifts.filter(s => {
+          const [y, m] = s.date.split('-');
+          return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
         });
 
-        if (s.payday && s.payday !== s.date) {
-          const pKey = `${s.workplaceId}_${s.payday}`;
-          if (!paydayGroups[pKey]) {
-            paydayGroups[pKey] = {
-              workplaceId: s.workplaceId,
-              payday: s.payday,
-              totalWage: 0,
-              shiftCount: 0,
-              shiftDates: []
-            };
-          }
-          paydayGroups[pKey].totalWage += s.wage;
-          paydayGroups[pKey].shiftCount += 1;
-          paydayGroups[pKey].shiftDates.push(s.date);
+        if (currentMonthShifts.length === 0) {
+          showToast("동기화할 근무 일정이 없습니다.");
+          return;
         }
-      });
 
-      // Add ONE aggregated settlement event per workplace
-      Object.values(paydayGroups).forEach(group => {
-        const wp = workplaces.find(w => w.id === group.workplaceId) || { name: '알바' };
-        const sortedDates = group.shiftDates.sort().map(d => {
-          const parts = d.split('-');
-          return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
-        }).join(', ');
+        const events = [];
+        const paydayGroups = {};
 
-        events.push({
-          id: `payday_${group.workplaceId}_${group.payday}`,
-          date: group.payday,
-          start: "10:00",
-          end: "10:30",
-          title: `💰 [정산일] ${wp.name} (총 ₩ ${group.totalWage.toLocaleString()})`,
-          location: "내 계좌",
-          description: `${wp.name} 알바비 총 ${group.shiftCount}일치 정산\n근무일: ${sortedDates}\n입금 예정 총액: ${group.totalWage.toLocaleString()}원`
+        currentMonthShifts.forEach(s => {
+          const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
+          const shiftTitle = formatShiftEventTitle(wp, s);
+          let desc = `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`;
+          const contact = s.managerPhone || wp.managerPhone;
+          if (contact) desc += `\n담당자 연락처: ${contact}`;
+          if (s.memo) desc += `\n메모: ${s.memo}`;
+
+          events.push({
+            id: s.id,
+            date: s.date,
+            start: s.start || '09:00',
+            end: s.end || '16:00',
+            title: shiftTitle,
+            location: wp.location || wp.name,
+            category: '알바근무',
+            description: desc
+          });
+
+          if (s.payday && s.payday !== s.date) {
+            const pKey = `${s.workplaceId}_${s.payday}`;
+            if (!paydayGroups[pKey]) {
+              paydayGroups[pKey] = {
+                workplaceId: s.workplaceId,
+                payday: s.payday,
+                totalWage: 0,
+                shiftCount: 0,
+                shiftDates: []
+              };
+            }
+            paydayGroups[pKey].totalWage += s.wage;
+            paydayGroups[pKey].shiftCount += 1;
+            paydayGroups[pKey].shiftDates.push(s.date);
+          }
         });
-      });
 
-      // Optional: Include monthly tax deduction on the last day of the month
-      const includeTaxCheckbox = document.getElementById('sync-include-month-tax');
-      const includeTax = includeTaxCheckbox ? includeTaxCheckbox.checked : (localStorage.getItem('albalog_pref_include_tax') !== 'false');
-      const { monthTotalTax, monthTaxesByWp } = getMonthTaxSummary(selectedYear, selectedMonth);
+        // Add ONE aggregated settlement event per workplace
+        Object.values(paydayGroups).forEach(group => {
+          const wp = workplaces.find(w => w.id === group.workplaceId) || { name: '알바' };
+          const sortedDates = group.shiftDates.sort().map(d => {
+            const parts = d.split('-');
+            return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+          }).join(', ');
 
-      if (includeTax && monthTotalTax > 0) {
-        const lastDayDateStr = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
-        const taxDescLines = Object.entries(monthTaxesByWp).map(([wpId, t]) => {
-          const w = workplaces.find(wp => wp.id === wpId) || { name: '알바' };
-          return `• ${w.name}: -₩ ${t.toLocaleString()}`;
-        }).join('\n');
-
-        events.push({
-          id: `month_tax_${selectedYear}_${selectedMonth}`,
-          date: lastDayDateStr,
-          start: "18:00",
-          end: "18:30",
-          title: `📉 [세금 정산] ${selectedMonth}월 총 공제 (-₩ ${monthTotalTax.toLocaleString()})`,
-          location: "정산 내역",
-          description: `${selectedMonth}월 총 세금 공제 합산 내역: -₩ ${monthTotalTax.toLocaleString()}원\n${taxDescLines}`
+          events.push({
+            id: `payday_${group.workplaceId}_${group.payday}`,
+            date: group.payday,
+            isAllDay: true,
+            category: '알바급여입금',
+            title: `💰 [급여입금일] ${wp.name} (총 ₩ ${group.totalWage.toLocaleString()})`,
+            location: "내 계좌",
+            description: `${wp.name} 알바비 총 ${group.shiftCount}일치 정산\n근무일: ${sortedDates}\n입금 예정 총액: ${group.totalWage.toLocaleString()}원`
+          });
         });
+
+        // Optional: Include monthly tax deduction on the last day of the month
+        const includeTaxCheckbox = document.getElementById('sync-include-month-tax');
+        const includeTax = includeTaxCheckbox ? includeTaxCheckbox.checked : (localStorage.getItem('albalog_pref_include_tax') !== 'false');
+        const { monthTotalTax, monthTaxesByWp } = getMonthTaxSummary(selectedYear, selectedMonth);
+
+        if (includeTax && monthTotalTax > 0) {
+          const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+          const lastDayDateStr = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+          const taxDescLines = Object.entries(monthTaxesByWp).map(([wpId, t]) => {
+            const w = workplaces.find(wp => wp.id === wpId) || { name: '알바' };
+            return `• ${w.name}: -₩ ${t.toLocaleString()}`;
+          }).join('\n');
+
+          events.push({
+            id: `month_tax_${selectedYear}_${selectedMonth}`,
+            date: lastDayDateStr,
+            isAllDay: true,
+            category: '세금정산',
+            title: `📉 [세금 정산] ${selectedMonth}월 총 공제 (-₩ ${monthTotalTax.toLocaleString()})`,
+            location: "정산 내역",
+            description: `${selectedMonth}월 총 세금 공제 합산 내역: -₩ ${monthTotalTax.toLocaleString()}원\n${taxDescLines}`
+          });
+        }
+
+        const calName = getSelectedCalendarName();
+        const alarmMins = getSelectedAlarmMins();
+        const ics = generateIcs(events, calName, alarmMins);
+        downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_전체일정및정산.ics`, ics);
+      } catch (err) {
+        console.error("캘린더 내보내기 오류:", err);
+        showToast("캘린더 파일 생성 중 오류가 발생했습니다: " + err.message);
       }
-
-      const calName = getSelectedCalendarName();
-      const alarmMins = getSelectedAlarmMins();
-      const ics = generateIcs(events, calName, alarmMins);
-      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_전체일정및정산.ics`, ics);
     }
 
 
     function exportMonthShiftsOnly() {
-      const currentMonthShifts = shifts.filter(s => {
-        const [y, m] = s.date.split('-');
-        return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
-      });
-
-      if (currentMonthShifts.length === 0) {
-        showToast("동기화할 근무 일정이 없습니다.");
-        return;
-      }
-
-      const events = [];
-      currentMonthShifts.forEach(s => {
-        const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
-        const shiftTitle = formatShiftEventTitle(wp, s);
-        events.push({
-          id: s.id,
-          date: s.date,
-          start: s.start || '09:00',
-          end: s.end || '16:00',
-          title: shiftTitle,
-          location: wp.location || wp.name,
-          category: '알바근무',
-          description: `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`
+      try {
+        const currentMonthShifts = shifts.filter(s => {
+          const [y, m] = s.date.split('-');
+          return parseInt(y) === selectedYear && parseInt(m) === selectedMonth && !s.isTax;
         });
-      });
 
-      const alarmMins = getSelectedAlarmMins();
-      const ics = generateIcs(events, '알바근무', alarmMins);
-      downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_근무일정.ics`, ics);
+        if (currentMonthShifts.length === 0) {
+          showToast("동기화할 근무 일정이 없습니다.");
+          return;
+        }
+
+        const events = [];
+        currentMonthShifts.forEach(s => {
+          const wp = workplaces.find(w => w.id === s.workplaceId) || { name: '알바', rate: 10320, type: 'regular' };
+          const shiftTitle = formatShiftEventTitle(wp, s);
+          let desc = `근무시간: ${s.hours}시간\n예상일당: ${s.wage.toLocaleString()}원\n입금예정일: ${s.payday || '당일'}`;
+          const contact = s.managerPhone || wp.managerPhone;
+          if (contact) desc += `\n담당자 연락처: ${contact}`;
+          if (s.memo) desc += `\n메모: ${s.memo}`;
+
+          events.push({
+            id: s.id,
+            date: s.date,
+            start: s.start || '09:00',
+            end: s.end || '16:00',
+            title: shiftTitle,
+            location: wp.location || wp.name,
+            category: '알바근무',
+            description: desc
+          });
+        });
+
+        const alarmMins = getSelectedAlarmMins();
+        const ics = generateIcs(events, '알바근무', alarmMins);
+        downloadIcsFile(`알바로그_${selectedYear}년${selectedMonth}월_근무일정.ics`, ics);
+      } catch (err) {
+        console.error("근무 일정 내보내기 오류:", err);
+        showToast("캘린더 생성 오류: " + err.message);
+      }
     }
 
     function exportMonthPaydaysOnly() {
