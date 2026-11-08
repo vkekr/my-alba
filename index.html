@@ -1182,7 +1182,7 @@
         <div class="brand-text">
           <div class="brand-title">
             <span>알바로그</span>
-            <span class="brand-tag">v2.9.1</span>
+            <span class="brand-tag">v2.9.2</span>
           </div>
           <div class="brand-sub">스마트 알바 & 정산 플래너</div>
         </div>
@@ -1842,7 +1842,7 @@
 
       <div style="margin-bottom: 16px;">
         <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.1)
+          구름이 직접 만든 스마트 알바 & 정산 플래너 (v2.9.2)
         </p>
       </div>
 
@@ -1851,7 +1851,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
             <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">⚡ 앱 버전 및 최신 업데이트</h3>
-            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.1</strong></div>
+            <div style="font-size: 12px; color: #64748B;">현재 버전: <strong id="app-version-display" style="color: #4F46E5;">v2.9.2</strong></div>
           </div>
           <span style="font-size: 11px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 4px 8px; border-radius: 6px;">정상 작동 중</span>
         </div>
@@ -2221,11 +2221,42 @@
                   <span>시급 ${wp.rate.toLocaleString()}원</span>
                   ${wp.location ? `<span>· 📍 ${escapeHtml(wp.location)}</span>` : ''}
                 </div>
-                ${wp.memo ? `
-                  <div style="font-size: 12px; color: #4F46E5; background: #EEF2FF; padding: 3px 8px; border-radius: 6px; margin-top: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                    <span>📝</span> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px;">${escapeHtml(wp.memo)}</span>
-                  </div>
-                ` : ''}
+
+                ${(() => {
+                  let contactPhone = wp.managerPhone || '';
+                  if (!contactPhone && wp.memo) {
+                    const match = wp.memo.match(/01[016789]-?[0-9]{3,4}-?[0-9]{4}/);
+                    if (match) contactPhone = match[0];
+                  }
+                  if (!contactPhone) {
+                    const sPhone = shifts.find(s => s.workplaceId === wp.id && s.managerPhone);
+                    if (sPhone) contactPhone = sPhone.managerPhone;
+                  }
+
+                  let h = '';
+                  if (contactPhone) {
+                    h += `
+                      <div style="font-size: 12px; color: #4338CA; background: #EEF2FF; border: 1.5px solid #C7D2FE; padding: 6px 12px; border-radius: 10px; margin-top: 8px; font-weight: 800; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                          <span>👤</span> <span>담당자: ${escapeHtml(contactPhone)}</span>
+                        </span>
+                        <a href="tel:${contactPhone.replace(/[^0-9]/g, '')}" class="btn-card-call" onclick="event.stopPropagation()" style="background: #4F46E5; color: #FFFFFF; font-size: 11.5px; font-weight: 800; text-decoration: none; padding: 3px 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(79,70,229,0.25);">📞 전화</a>
+                      </div>
+                    `;
+                  }
+
+                  if (wp.memo) {
+                    h += `
+                      <div style="margin-top: 6px;">
+                        <button type="button" class="btn-card-memo" onclick="event.stopPropagation(); toggleCardMemo('${wp.id}')" style="background: #F8FAFC; border: 1px solid #CBD5E1; color: #475569; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                          <span>📝 메모 확인</span> <span id="memo-arrow-${wp.id}">▾</span>
+                        </button>
+                        <div id="memo-content-${wp.id}" class="wp-card-memo-box" onclick="event.stopPropagation()" style="display: none; margin-top: 6px; padding: 9px 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 12.5px; color: #334155; line-height: 1.55; white-space: pre-wrap; word-break: break-word;">${escapeHtml(wp.memo)}</div>
+                      </div>
+                    `;
+                  }
+                  return h;
+                })()}
               </div>
 
               <!-- 세금 상태 및 빠른 적용 배너 -->
@@ -2322,6 +2353,16 @@
       });
     }
 
+    function toggleCardMemo(wpId) {
+      const content = document.getElementById(`memo-content-${wpId}`);
+      const arrow = document.getElementById(`memo-arrow-${wpId}`);
+      if (content) {
+        const isHidden = (content.style.display === 'none' || !content.style.display);
+        content.style.display = isHidden ? 'block' : 'none';
+        if (arrow) arrow.innerText = isHidden ? '▴' : '▾';
+      }
+    }
+
     function deleteWorkplace(wpId) {
       const wp = workplaces.find(w => w.id === wpId);
       if (!wp) return;
@@ -2339,7 +2380,7 @@
 
     // --- WORKPLACE DETAIL VIEW (하우머치 스타일 근무지별 상세 내역) ---
     function handleWorkplaceCardClick(e, wpId) {
-      if (e.target.closest('.wp-card-actions') || e.target.closest('.btn-tax-quick') || e.target.closest('.btn-action')) {
+      if (e.target.closest('.wp-card-actions') || e.target.closest('.btn-tax-quick') || e.target.closest('.btn-action') || e.target.closest('.btn-card-memo') || e.target.closest('.btn-card-call') || e.target.closest('.wp-card-memo-box')) {
         return;
       }
       openWorkplaceDetail(wpId);
@@ -4751,6 +4792,13 @@
         } else if (w.type === 'daily' && (!w.color || w.color === '#D97706' || w.color === '#059669')) {
           w.color = '#F97316'; // 일일알바 코랄오렌지
           migrated = true;
+        }
+        if (!w.managerPhone && w.memo) {
+          const match = w.memo.match(/01[016789]-?[0-9]{3,4}-?[0-9]{4}/);
+          if (match) {
+            w.managerPhone = match[0];
+            migrated = true;
+          }
         }
       });
       if (migrated) saveState();
